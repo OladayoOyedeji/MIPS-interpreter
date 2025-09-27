@@ -9,6 +9,8 @@ class RegisterFile
 public:
     RegisterFile()
     {}
+    int32_t & get_register(const char * s);
+    int32_t & get_register(const char * s) const;
     int32_t operator[](int i) const;
     int32_t & operator[](int i);
 private:
