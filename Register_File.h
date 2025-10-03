@@ -15,6 +15,9 @@ public:
     int32_t & operator[](int i);
 private:
     int32_t x_[32];
+    int32_t HI_;
+    int32_t LO_;
+    int32_t PC_;
 };
 
 #endif

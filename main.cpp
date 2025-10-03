@@ -10,7 +10,7 @@ int32_t buff_to_int(unsigned char buff[]);
 int main(int argc, char ** argv)
 {
     std::vector<> 
-    while ()
+    while (true)
     {
         // read string from keyboard and put into input array of characters
         char s[MAX_BUF];
@@ -24,6 +24,10 @@ int main(int argc, char ** argv)
                             '\n');
         }
         std::cout << '[' << s << "]\n";
+
+        std::vector<Words *> tok;
+        Tokenize(s, tok);
+        
     }
     
     return 0;
