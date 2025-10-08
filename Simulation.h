@@ -5,15 +5,13 @@
 #include <limits>
 #include "TextSegment.h"
 
-bool token(char * s);
+bool token(const char * s);
 
 class Simulation
 {
 public:
     Simulation()
-    {
-        std::cout << "yo what is happening" << std::endl;
-    }
+    {}
     // void read_file(const char * name);
     void run_sim(const char * filename = "");
     void print_option_message()

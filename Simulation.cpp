@@ -1,8 +1,14 @@
 #include "Simulation.h"
 
-bool token(char * s)
+bool token(const char * s)
 {
-    if (s == "" || s == "\n")
+    // int i = 0;
+    // while (s[i] != '\0')
+    // {
+    //     std::cout << (s[i] == '\0') << std::endl;
+    //     std::cout << int(s[i++]) << ',' << int('\0') << std::endl;;
+    // }
+    if (s == "" || s == "\n" || s[0] =='\0')
     {
         return false;
     }
@@ -20,7 +26,9 @@ void Simulation::run_sim(const char * filename)
     while (true)
     {
         print_option_message();
-        std::cin >> option;
+        std::cin >>option;
+        std::cin.ignore(std::numeric_limits<std::streamsize>::max(),
+                            '\n');
         switch (option)
         {
             case 't':
@@ -55,7 +63,7 @@ void Simulation::run_text()
         text_.print_addressh(i);
         std::cout << " >";
         // read string from keyboard and put into input array of characters
-        std::cout << "get input" << std::endl;
+        
         char s[MAX_BUF];
         std::cin.getline(s, MAX_BUF);
         if (std::cin.eof()) break;

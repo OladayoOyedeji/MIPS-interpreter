@@ -11,11 +11,15 @@ class TextSegment
 {
 public:
     TextSegment()
-        : instructions_(MAX_TEXTSEGMENT_SIZE, ""), size_(0),
+        : size_(0),
           starting_address_(TS_ADDRESS)
     {}
-    void print_addressh(int i)
+    void print_addressh(int i) const
     {
+        if (i > size_)
+        {
+            throw SizeError();
+        }
         std::cout << "0x" << std::setw(8) << std::setfill('0')
                   << std::right << std::hex << (starting_address_ + i * 4);
     }
@@ -26,7 +30,7 @@ public:
     }
     void run_command();
 private:
-    std::vector< std::string > instructions_;
+    std::map< int32_t, std::string > instructions_;
     int size_;
     int32_t starting_address_;
 };
