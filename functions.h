@@ -5,7 +5,9 @@
 #include <iomanip>
 #include <vector>
 #include <string>
+#include <set>
 #include <map>
+#include <fstream>
 
 const int MAX_TEXTSEGMENT_SIZE = 268435456 - 67108864;
 const int TS_ADDRESS = 67108864;

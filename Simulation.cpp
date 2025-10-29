@@ -53,7 +53,23 @@
 //     return true;
 // }
 
-// state 1:go into a directory, state 0:file loaded, state -1:error in the syntax
+void append_to_path(char * path, int & size, const char * file="")
+{
+    // append dir to path
+    std::cout << "herro? [" << path[size - 2] << ']' << std::endl;
+    path[size++] = '/';
+    int i = 0;
+    while (true)
+    {
+        std::cout << '[' << path << "] " << file[i] << std::endl;
+        path[size] = file[i];
+        if (file[i++] == '\0') break;
+        size++;
+    }
+    std::cout << '[' << path << "] " << std::endl;
+}
+
+// state 1:go into a directory, state 2:gone back, state 0:file loaded, state -1:error in the syntax
 int Simulation::Robert_Language_lexer(const std::string & command, char * arg,
                                        char * path, int &size)
 {
@@ -70,16 +86,7 @@ int Simulation::Robert_Language_lexer(const std::string & command, char * arg,
     }
     if (command[i] == '<' && command[i + 1] == '-')
     {
-        if (size == 0)
-            std::cout << "mmmyeah\n";
-        for (; size >= 0; --size)
-        {
-            if (path[size] == '/')
-            {
-                path[size] = '\0';
-                return 1;
-            }
-        }
+        return 2;
     }
     else
     {
@@ -96,31 +103,31 @@ int Simulation::Robert_Language_lexer(const std::string & command, char * arg,
             // std::cout << command[j] << std::endl;
             if (command[j] == ' ' || command[j] == '\t')
             {
-                std::cout << "here? " << instruction_state << std::endl;
+                //std::cout << "here? " << instruction_state << std::endl;
                 if (command[i] == ' ' || command[i] == '\t')
                 {
                     i = j++;
                     continue;
                 }
-                std::cout << instruction_state << std::endl;
+                //std::cout << instruction_state << std::endl;
                 if (instruction_state == 0)
                 {
-                    std::cout << '[' << command.substr(i, j-i) << ']' << std::endl;
+                    //std::cout << '[' << command.substr(i, j-i) << ']' << std::endl;
                     if (strcmp(command.substr(i, j-i), "lf"))
                     {
-                        std::cout << "load a file" << std::endl;
+                        //std::cout << "load a file" << std::endl;
                         state = 0;
                     }
                     else if (strcmp(command.substr(i, j - i), "move"))
                     {
-                        std::cout << "move into a directory" << std::endl;
+                        //std::cout << "move into a directory" << std::endl;
                         state = 1;
                     }
                     else return -1;
                 }
                 else if (instruction_state == 1)
                 {
-                    std::cout << "step 2\n";
+                    //std::cout << "step 2\n";
                     //arg = command.substr(i, j - i);
                     for (int k = i; k != j; ++k)
                     {
@@ -134,22 +141,40 @@ int Simulation::Robert_Language_lexer(const std::string & command, char * arg,
             }
             j++;
         }
+         
     }
     return state;
 }
 
 void Simulation::read_file()
-{}
+{
+    std::cout << filename_ << std::endl;
+    int option = 0;
+    std::ifstream f(filename_, std::ios::in);
+    std::string line;
+    while (option == 0)
+    {
+        std::getline(f, line);
+        std::cout << line << std::endl;
+        std::cout << "\nenter option\n";
+                     std::cin >> option;
+    }
+    f.close();
+    
+}
 
 void Simulation::display_curdir_files()
 {
     char path[FILENAME_MAX];
     GET_CURRENT_DIR(path, sizeof(path));
     int size = len(path);
-    int option = 1;
+    bool not_loaded = true;
     int i = 0;
+
+    std::set<std::string> files;
+    std::set<std::string> directories;
         
-    while (option != 0)
+    while (not_loaded)
     {
         std::cout << path << std::endl;
         // print files and directory in the directory
@@ -157,10 +182,16 @@ void Simulation::display_curdir_files()
         {
             // Check if the entry is a regular file
             if (fs::is_regular_file(entry.status()))
+            {
                 std::cout << "\033[33;44m";
+                files.insert(entry.path().filename().string());
+            }
             else
+            {
                 std::cout << "\033[1;37;40m";
-            std::cout << entry.path().filename() << "\033[0m ";
+                directories.insert(entry.path().filename().string());
+            }
+            std::cout << entry.path().filename().string() << ' ' << "\033[0m ";
             // Print only the filename
                 
         }
@@ -168,9 +199,10 @@ void Simulation::display_curdir_files()
 
         // get a command
         char command[MAX_BUF] = "";
-        std::cout << '[' << command << ']' << std::endl;
+        //
         std::cout << ">> ";
         std::cin.getline(command, MAX_BUF);
+        
         if (std::cin.eof()) break;
         if (std::cin.fail() || std::cin.bad())
         {
@@ -178,17 +210,65 @@ void Simulation::display_curdir_files()
             std::cin.ignore(std::numeric_limits<std::streamsize>::max(),
                             '\n');
         }
+
+        int len_ = len(command);
+        std::cout << len_ << ' ' << command[len_ - 1] << std::endl;
+        command[len_] = ' ';
+        command[len_ + 1] = '\0';
+        
+        std::cout << '[' << command << ']' << std::endl;
+        
         char file[MAX_BUF] = "";
         int state = Robert_Language_lexer(command, file, path, size);
+
+        //std::cout << state << " [" << file << ']' << std::endl;;
+        
+        if (state == -1)
+        {
+            std::cout << "dude know my syntax\n";
+        }
+        else if (state == 2)
+        {
+            for (; size >= 0; --size)
+            {
+                if (path[size] == '/')
+                {
+                    path[size] = '\0';
+                    break;
+                }
+            }
+            size = len(path);
+        }
+        else if (state == 1)
+        {
+            if (directories.find(file) != directories.end() || file == "")
+            {
+                append_to_path(path, size, file);
+            }
+            else
+                std::cout << "Directory does not exist\n";
+        }
+        else if (state == 0)
+        {
+            if (files.find(file) != files.end())
+            {
+                // append dir to path
+                append_to_path(path, size, file);
+                filename_ = path;
+                not_loaded = false;
+            }
+            else
+                std::cout << "File does not exist\n";
+        }
+        
         //if (state )
         // instruction[3]
         // if ()
-        std::cout << state << " [" << file << ']' << std::endl;;
-        std::cout << i++ << std::endl;
-        std::cout << "enter option" << std::endl;
-        std::cin >> option;
-        std::cin.ignore(std::numeric_limits<std::streamsize>::max(),
-                        '\n');
+        //std::cout << i++ << std::endl;
+        //std::cout << "enter option" << std::endl;
+        //std::cin >> option;
+        //std::cin.ignore(std::numeric_limits<std::streamsize>::max(),
+        //                '\n');
     }
 }
 
@@ -250,6 +330,10 @@ void Simulation::run_text()
             std::cin.ignore(std::numeric_limits<std::streamsize>::max(),
                             '\n');
         }
+
+        // TODO: get label
+        
+        // insert text
         text_.insert(s);
             
         i++;

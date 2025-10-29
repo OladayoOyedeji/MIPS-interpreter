@@ -3,9 +3,9 @@
 int32_t len(const char * s)
 {
     int32_t i = 0;
-    while (s[i++] != '\0')
+    while (s[i] != '\0')
     {
-        
+        i++;
     }
     return i;
 }
