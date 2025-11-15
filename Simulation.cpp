@@ -1,58 +1,5 @@
 #include "Simulation.h"
 
-// bool tokenize(const std::string & s, std::list<std::string> & instructions,
-//               char delim, int max_delim_deg)
-// {
-    
-//     // remove trailing spaces, i tracks where non space starts
-//     int i = 0;
-//     while (s[i] == ' ')
-//     {
-//         if (s[i++] == '\0')
-//         {
-//             return false;
-//         }
-//     }
-
-//     int j = i;
-//     // put token it
-//     int deg = 0;
-//     while (s[j] != '\0' && deg < max_delim_deg)
-//     {
-//         if (s[j++] == ' ')
-//         {
-//             instructions.push_back(s.substr(i, j-i));
-//             deg++;
-//         }
-        
-//     }
-//     return true;
-// }
-    // if (s == "" || s == "\n" || s[0] =='\0')
-//     {
-//         return false;
-//     }
-//     // remove trailing spaces, i tracks where non space starts
-//     int i = 0;
-//     while (s[i] == ' ')
-//     {
-//         if (s[i++] == '\0')
-//         {
-//             return false;
-//         }
-//     }
-//     int start_ = i;
-//     bool is_label;
-//     while (s[i] != ' ')
-//     {
-//         if (s[i] == ':')
-//         {
-//             // push s.substr(start_, i) in the
-//         }
-//     }
-//     return true;
-// }
-
 void append_to_path(char * path, int & size, const char * file="")
 {
     // append dir to path
@@ -294,6 +241,9 @@ void Simulation::run_sim(const char * filename)
             case '?':
                 // TODO: help instructions
                 break;
+            case 'p':
+                show_reg();
+                break;
             case 'l':
                 display_curdir_files();
                 read_file();
@@ -334,7 +284,9 @@ void Simulation::run_text()
         // TODO: get label
         
         // insert text
+        std::cout << s << std::endl;
         text_.insert(s);
+        std::cout << "done" << std::endl;
             
         i++;
         // if (token(s))
@@ -352,8 +304,25 @@ void Simulation::run_text()
 // {
 // }
 
-// void Simulation::show_reg()
-// {}
+void Simulation::show_reg()
+{
+    std::cout << "======================================================================================================\n"
+              << "Registers\n"
+              << "======================================================================================================\n";
+    std::map<std::string, int>::const_iterator p = REGISTER_NOMENCLATURE.begin();
+    for (int i = 0; i < 32; ++i)
+    {
+        std::cout << p->first << "| ";
+        std::cout << std::right << std::setw(20)
+                  << std::setfill('0') << registers_[i] << " ";
+
+        if ((i + 1) % 4 == 0)
+        {
+            std::cout << std::endl;
+        }
+        p++;
+    }
+}
 
 // void Simulation::show_data()
 // {

@@ -13,8 +13,43 @@ const int MAX_TEXTSEGMENT_SIZE = 268435456 - 67108864;
 const int TS_ADDRESS = 67108864;
 const int MAX_BUF = 1024;
 
+static std::map< std::string, int32_t > REGISTER_NOMENCLATURE = {
+    {"$r0", 0}, {"$at", 1}, {"$v0", 2},  {"$v1", 3},  {"$a0", 4},  {"$a1", 5},  {"$a2", 6},  {"$a3", 7},
+    {"$t0", 8}, {"$t1", 9}, {"$t2", 10}, {"$t3", 11}, {"$t4", 12}, {"$t5", 13}, {"$t6", 14}, {"$t7", 15},
+    {"$s0", 16}, {"$s1", 17}, {"$s2", 18}, {"$s3", 19}, {"$s4", 20}, {"$s5", 21}, {"$s6", 22}, {"$s7", 23},
+    {"$t8", 24}, {"$t9", 25}, {"$k0", 26}, {"$k1", 27}, {"$gp", 28}, {"$sp", 29}, {"$fp", 30}, {"$ra", 31}
+};
+
+
+//=========================================================================================================
+// pseudoinstruction should map to a list of instructions with constants and variables
+// li -> [[ori $%s, $0, %d]]
+// lw -> [[lui $1, %s], [lw $%s, 12($1)]]
+// la -> [[lui $1, %s], [ori $%s, $1, 16]]
+// blt ->[[slt $1, $%s, $%s], [bne $1, $0, %s]]
+// ble ->[[slt $1, $%s, $%s], [beq $1, $0, %s]]
+// bgt ->[[slt $1, $%s, $%s], [bne $1, $0, %s]]
+//=========================================================================================================
+static std::map<std::string, std::list<std::string> > PSEUDO_INSTRUCTIONS = {
+    {"li", {"ori"}}
+};
+
 int32_t len(const char * s);
 bool strcmp(const std::string & s, const std::string & c);
+template< typename T >
+std::ostream & operator<<(std::ostream & cout, const std::vector<T> & v)
+{
+    std::string delim = "";
+    std::cout << '[';
+    for (int i = 0; i < v.size(); ++i)
+    {
+        std::cout << delim << '[' << v[i] << ']';
+        delim = ", ";
+        
+    }
+    std::cout << ']';
+    return cout;
+}
 //const char ** addressable_reg[32] = {"r0","at","v0",""}
 
 /* unsigned char * uint_to_hexad(int32_t i); */

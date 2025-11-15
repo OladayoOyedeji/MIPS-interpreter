@@ -4,6 +4,7 @@
 #include <cmath>
 #include <limits>
 #include "TextSegment.h"
+#include "Register_File.h"
 #include <filesystem>
 #include <stdlib.h>
 
@@ -41,14 +42,14 @@ public:
     // void save_to_file(const char * filename);
     void run_text();
     // void run_data();
-    // void show_reg();
+    void show_reg();
     // void show_data();
     // void show_labels();
 private:
     TextSegment text_;
     //DataSegment data_;
     //int mode_;
-    // RegisterFile registers_;
+    RegisterFile registers_;
     //Labels label_;
     std::string filename_;
 };
