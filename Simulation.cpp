@@ -207,15 +207,7 @@ void Simulation::display_curdir_files()
             else
                 std::cout << "File does not exist\n";
         }
-        
-        //if (state )
-        // instruction[3]
-        // if ()
-        //std::cout << i++ << std::endl;
-        //std::cout << "enter option" << std::endl;
-        //std::cin >> option;
-        //std::cin.ignore(std::numeric_limits<std::streamsize>::max(),
-        //                '\n');
+       
     }
 }
 
@@ -242,7 +234,7 @@ void Simulation::run_sim(const char * filename)
                 // TODO: help instructions
                 break;
             case 'p':
-                show_reg();
+                print_system();
                 break;
             case 'l':
                 display_curdir_files();
@@ -284,19 +276,44 @@ void Simulation::run_text()
         // TODO: get label
         
         // insert text
-        std::cout << s << std::endl;
-        text_.insert(s);
-        std::cout << "done" << std::endl;
+        //std::cout << s << std::endl;
+        try
+        {
             
-        i++;
-        // if (token(s))
-        // {
-        // // tokenize instruction
-        // // and instruction can be divided into label, instruction and registers,
-        // // or instruction to be
-        // // Also if psuedo instruction divide into instructions
+            std::string label = "";
+            std::vector< std::string > token;
+            instruction_lexer(s, token, label);
+            std::cout << "Token: " << token << " Label: " << label << std::endl;
+            std::cout << token.size() << std::endl;
             
-        // }
+            
+            
+            // insert label
+            
+            if (label != "" && label_.find(label) == label_.end())
+            {
+                std::cout << "entering\n";
+                label_[label] = TS_ADDRESS + i * 4;
+            }
+            else if (label != "")
+                throw std::runtime_error("Label already declared");
+
+            // insert text_segment
+            text_.insert(token);
+            
+            // executing code
+            text_.machine_format_[i]->execute_code(registers_);
+            PC_ += 4;
+             
+            i++;
+        }
+        catch (const std::runtime_error & e)
+        {
+            std::cerr  << e.what() << std::endl;
+        }
+
+        print_system();
+       
     }
 }
 
@@ -304,24 +321,97 @@ void Simulation::run_text()
 // {
 // }
 
-void Simulation::show_reg()
+void Simulation::show_reg() const
 {
-    std::cout << "======================================================================================================\n"
+    std::cout << "==========================================================\n"
               << "Registers\n"
-              << "======================================================================================================\n";
+              << "==========================================================\n";
+    
     std::map<std::string, int>::const_iterator p = REGISTER_NOMENCLATURE.begin();
-    for (int i = 0; i < 32; ++i)
-    {
-        std::cout << p->first << "| ";
-        std::cout << std::right << std::setw(20)
-                  << std::setfill('0') << registers_[i] << " ";
+    
+    std::cout << "$r0| " << std::right << std::setw(10)
+              << std::setfill('0') << registers_[0] << " "
+              << "$at| " << std::right << std::setw(10)
+              << std::setfill('0') << registers_[1] << " "
+              << "$v0| " << std::right << std::setw(10)
+              << std::setfill('0') << registers_[2] << " "
+              << "$v1| " << std::right << std::setw(10)
+              << std::setfill('0') << registers_[3] << "\n"
+              << "$a0| " << std::right << std::setw(10)
+              << std::setfill('0') << registers_[4] << " "
+              << "$a1| " << std::right << std::setw(10)
+              << std::setfill('0') << registers_[5] << " "
+              << "$a2| " << std::right << std::setw(10)
+              << std::setfill('0') << registers_[6] << " "
+              << "$a3| " << std::right << std::setw(10)
+              << std::setfill('0') << registers_[7] << "\n"
+              << "$t0| " << std::right << std::setw(10)
+              << std::setfill('0') << registers_[8] << " "
+              << "$t1| " << std::right << std::setw(10)
+              << std::setfill('0') << registers_[9] << " "
+              << "$t2| " << std::right << std::setw(10)
+              << std::setfill('0') << registers_[10] << " "
+              << "$t3| " << std::right << std::setw(10)
+              << std::setfill('0') << registers_[11] << "\n"
+              << "$t4| " << std::right << std::setw(10)
+              << std::setfill('0') << registers_[12] << " "
+              << "$t5| " << std::right << std::setw(10)
+              << std::setfill('0') << registers_[13] << " "
+              << "$t6| " << std::right << std::setw(10)
+              << std::setfill('0') << registers_[14] << " "
+              << "$t7| " << std::right << std::setw(10)
+              << std::setfill('0') << registers_[15] << "\n"
+              << "$s0| " << std::right << std::setw(10)
+              << std::setfill('0') << registers_[16] << " "
+              << "$s1| " << std::right << std::setw(10)
+              << std::setfill('0') << registers_[17] << " "
+              << "$s2| " << std::right << std::setw(10)
+              << std::setfill('0') << registers_[18] << " "
+              << "$s3| " << std::right << std::setw(10)
+              << std::setfill('0') << registers_[19] << "\n"
+              << "$s4| " << std::right << std::setw(10)
+              << std::setfill('0') << registers_[20] << " "
+              << "$s5| " << std::right << std::setw(10)
+              << std::setfill('0') << registers_[21] << " "
+              << "$s6| " << std::right << std::setw(10)
+              << std::setfill('0') << registers_[22] << " "
+              << "$s7| " << std::right << std::setw(10)
+              << std::setfill('0') << registers_[23] << "\n"
+              << "$t8| " << std::right << std::setw(10)
+              << std::setfill('0') << registers_[24] << " "
+              << "$t9| " << std::right << std::setw(10)
+              << std::setfill('0') << registers_[25] << " "
+              << "$k0| " << std::right << std::setw(10)
+              << std::setfill('0') << registers_[26] << " "
+              << "$k1| " << std::right << std::setw(10)
+              << std::setfill('0') << registers_[27] << "\n"
+              << "$gp| " << std::right << std::setw(10)
+              << std::setfill('0') << registers_[28] << " "
+              << "$sp| " << std::right << std::setw(10)
+              << std::setfill('0') << registers_[29] << " "
+              << "$fp| " << std::right << std::setw(10)
+              << std::setfill('0') << registers_[30] << " "
+              << "$ra| " << std::right << std::setw(10)
+              << std::setfill('0') << registers_[31] << "\n";
+}
 
-        if ((i + 1) % 4 == 0)
-        {
-            std::cout << std::endl;
-        }
-        p++;
-    }
+
+void Simulation::print_system() const
+{
+    std::cout << "==========================================================\n"
+              << "==========================================================\n"
+              << " MIPS SYSTEM\n"
+              << "==========================================================\n"
+              << "==========================================================\n"
+              << "Program Counter: " << std::right << std::setw(10)
+              << std::setfill('0') << PC_ << std::endl
+              << std::endl
+              << "HI: " << std::right << std::setw(10)
+              << std::setfill('0') << HI_ << std::endl
+              << "LO: " << std::right << std::setw(10)
+              << std::setfill('0') << LO_ << std::endl;
+    show_reg();
+    show_labels();
 }
 
 // void Simulation::show_data()
@@ -355,17 +445,20 @@ void Simulation::show_reg()
     
 // }
 
-// void Simulation::show_labels()
-// {
-//     for (int i = 0; i < 30; ++i)
-//     {
-//         std::cout << "=";
-//     }
-//     std::cout << "Labels" << std::endl;
-//     for (int i = 0; i < 30; ++i)
-//     {
-//         std::cout << "=";
-//     }
+void Simulation::show_labels() const
+{
+    std::cout << "===============================================\n"
+              << "Labels\n"
+              << "===============================================\n";
 
-//     // TODO: show labels
-// }
+    // auto p = label_.begin();
+    // std::cout << typeof(p).name() << std::endl;
+    for (auto p: label_)
+    {
+        std::cout << std::setfill(' ') << std::hex << "0x" << p.second << "| "
+                  << std::right << std::setw(20)
+                  << p.first << std::endl;
+    }
+
+    // TODO: show labels
+}

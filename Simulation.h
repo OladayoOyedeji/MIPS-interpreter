@@ -24,7 +24,7 @@ class Simulation
 {
 public:
     Simulation(const char * filename = "")
-        : filename_(filename)
+        : filename_(filename), HI_(0), LO_(0), PC_(TS_ADDRESS)
     {}
     void read_file();
     void display_curdir_files();
@@ -42,16 +42,20 @@ public:
     // void save_to_file(const char * filename);
     void run_text();
     // void run_data();
-    void show_reg();
+    void show_reg() const;
+    void print_system() const;
     // void show_data();
-    // void show_labels();
+    void show_labels() const;
 private:
     TextSegment text_;
     //DataSegment data_;
     //int mode_;
     RegisterFile registers_;
-    //Labels label_;
+    std::map< std::string, uint32_t > label_;
     std::string filename_;
+    uint32_t HI_;
+    uint32_t LO_;
+    uint32_t PC_;
 };
 
 #endif

@@ -4,6 +4,9 @@
 #ifndef REGISTER_FILE_H
 #define REGISTER_FILE_H
 
+#include "functions.h"
+#include <cstdint>
+
 class RegisterFile
 {
 public:
@@ -14,21 +17,19 @@ public:
             x_[i] = 0;
         }
     }
-    unsigned int & get_register(const char * s);
-    unsigned int & get_register(const char * s) const;
-    unsigned int operator[](int i) const
+    uint32_t & get_register(const char * s);
+    uint32_t & get_register(const char * s) const;
+    uint32_t operator[](int i) const
     {
         return x_[i];
     }
-    unsigned int & operator[](int i)
+    uint32_t & operator[](int i)
     {
         return x_[i];
     }
 private:
-    unsigned int x_[32];
-    int32_t HI_;
-    int32_t LO_;
-    int32_t PC_;
+    uint32_t x_[32];
+    
 };
 
 #endif
