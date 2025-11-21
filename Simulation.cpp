@@ -1,22 +1,8 @@
 #include "Simulation.h"
 
-void append_to_path(char * path, int & size, const char * file="")
-{
-    // append dir to path
-    std::cout << "herro? [" << path[size - 2] << ']' << std::endl;
-    path[size++] = '/';
-    int i = 0;
-    while (true)
-    {
-        std::cout << '[' << path << "] " << file[i] << std::endl;
-        path[size] = file[i];
-        if (file[i++] == '\0') break;
-        size++;
-    }
-    std::cout << '[' << path << "] " << std::endl;
-}
-
-// state 1:go into a directory, state 2:gone back, state 0:file loaded, state -1:error in the syntax
+//=================================================================================
+// Robert Language Lexer: lexes the instruction for moving into files
+//=================================================================================
 int Simulation::Robert_Language_lexer(const std::string & command, char * arg,
                                        char * path, int &size)
 {
@@ -93,6 +79,9 @@ int Simulation::Robert_Language_lexer(const std::string & command, char * arg,
     return state;
 }
 
+//=================================================================================
+// Read File: 
+//=================================================================================
 void Simulation::read_file()
 {
     std::cout << filename_ << std::endl;
@@ -110,6 +99,9 @@ void Simulation::read_file()
     
 }
 
+//=================================================================================
+// Display Current Directory Files
+//=================================================================================
 void Simulation::display_curdir_files()
 {
     char path[FILENAME_MAX];
@@ -211,6 +203,9 @@ void Simulation::display_curdir_files()
     }
 }
 
+//=================================================================================
+// Run Simulation:
+//=================================================================================
 void Simulation::run_sim(const char * filename)
 {
     char option = ' ';
@@ -253,13 +248,17 @@ void Simulation::run_sim(const char * filename)
 // void Simulation::save_to_file(const char * filename)
 // {}
 
+//=================================================================================
+// Run Text Segment: to be joined with text segment
+//=================================================================================
 void Simulation::run_text()
 {
     int i = 0;
+    int32_t address = TS_ADDRESS;
     while (true)
     {
-        std::cout << "TEXT:";
-        text_.print_addressh(i);
+        // get input
+        std::cout << "TEXT:" << "0x" << std::hex << address;
         std::cout << " >";
         // read string from keyboard and put into input array of characters
         
@@ -272,40 +271,31 @@ void Simulation::run_text()
             std::cin.ignore(std::numeric_limits<std::streamsize>::max(),
                             '\n');
         }
-
-        // TODO: get label
         
-        // insert text
-        //std::cout << s << std::endl;
         try
         {
-            
+
+            uint32_t address = i * 4 + TS_ADDRESS;
             std::string label = "";
             std::vector< std::string > token;
+            
             instruction_lexer(s, token, label);
-            std::cout << "Token: " << token << " Label: " << label << std::endl;
-            std::cout << token.size() << std::endl;
-            
-            
-            
-            // insert label
-            
-            if (label != "" && label_.find(label) == label_.end())
-            {
-                std::cout << "entering\n";
-                label_[label] = TS_ADDRESS + i * 4;
-            }
-            else if (label != "")
-                throw std::runtime_error("Label already declared");
 
-            // insert text_segment
-            text_.insert(token);
+            process_token(token);
             
-            // executing code
-            text_.machine_format_[i]->execute_code(registers_);
-            PC_ += 4;
-             
-            i++;
+            insert_label(label);
+        
+            if (undefined_label.size() == 0)
+            {
+                // run_instruction(address);
+                for (int i = PC_; i != address; i += 4)
+                {
+                    std::cout << "0x" << std::hex << i << std::endl;
+                }
+                PC_ = address;
+            }
+        
+            
         }
         catch (const std::runtime_error & e)
         {
@@ -317,10 +307,10 @@ void Simulation::run_text()
     }
 }
 
-// void Simulation::run_data()
-// {
-// }
 
+//=================================================================================
+// Display Registers: TODO name change
+//=================================================================================
 void Simulation::show_reg() const
 {
     std::cout << "==========================================================\n"
@@ -395,7 +385,9 @@ void Simulation::show_reg() const
               << std::setfill('0') << registers_[31] << "\n";
 }
 
-
+//=================================================================================
+// Prints System: Prints Program Counter, Register, Labels, Data Segment
+//=================================================================================
 void Simulation::print_system() const
 {
     std::cout << "==========================================================\n"
@@ -407,44 +399,16 @@ void Simulation::print_system() const
               << std::setfill('0') << PC_ << std::endl
               << std::endl
               << "HI: " << std::right << std::setw(10)
-              << std::setfill('0') << HI_ << std::endl
+              << std::setfill('0') << registers_.HI() << std::endl
               << "LO: " << std::right << std::setw(10)
-              << std::setfill('0') << LO_ << std::endl;
+              << std::setfill('0') << registers_.LO() << std::endl;
     show_reg();
     show_labels();
 }
 
-// void Simulation::show_data()
-// {
-    
-//     for (int i = 0; i < 30; ++i)
-//     {
-//         std::cout << "=";
-//     }
-//     std::cout << "DATA SEGMENT" << std::endl;
-//     for (int i = 0; i < 30; ++i)
-//     {
-//         std::cout << "=";
-//     }
-
-//     std::cout << std::setw(13) << std::right
-//               << "addr (int)|" << std::right
-//               << "addr (hex)|" << std::right
-//               << "value (int)|" << std::right
-//               << "value (hex)|" << std::right
-//               << "value (char)" << std::endl;
-//     for (int i = 0; i < data.size(); ++i)
-//     {
-//         std::cout << std::setw(13) << std::right
-//                   << data.addri(i, 4) << '|' << std::right
-//                   << data.addrh(i, 4) << '|' << std::right
-//                   << data.valuei(i, 4) << '|' << std::right
-//                   << data.valueh(i, 4) << '|' << std::right
-//                   << data.valuec(i, 4) << std::endl;
-//     }
-    
-// }
-
+//=================================================================================
+// Show Labels: 
+//=================================================================================
 void Simulation::show_labels() const
 {
     std::cout << "===============================================\n"
@@ -461,4 +425,165 @@ void Simulation::show_labels() const
     }
 
     // TODO: show labels
+}
+
+//=================================================================================
+// Convert to Machine Format:
+//=================================================================================
+void Simulation::convert_to_machine_format(std::vector< std::string >& v,
+                                           int16_t machine_instruction[], uint32_t address)
+{
+    // get the operation first
+    if (OPERATIONS.find(v[0]) != OPERATIONS.end())
+    {
+        machine_instruction[0] = OPERATIONS[v[0]];
+    }
+    else
+    {
+        throw std::runtime_error("Operation not found");
+    }
+    std::cout << machine_instruction[0] << std::endl;
+    int opcode = machine_instruction[0] >> 6;
+    int funct = machine_instruction[0] & ((1 << 6) - 1);
+
+    print_bin(opcode, 6);
+    std::cout << ' ' ;
+    print_bin(funct, 6);
+    std::cout << std::endl;
+
+    switch (opcode)
+    {
+        // opcode 0 means it in R format
+        case 0: 
+            machine_instruction[3] = get_register(v[1]);
+
+            //std::cout << v.size() << std::endl;
+            // 3 register operation
+            if (v.size() == 4)
+            {
+                machine_instruction[1] = get_register(v[2]);
+                machine_instruction[2] = get_register(v[3]);
+            }
+            else
+            {
+                // shift
+                machine_instruction[2] = get_register(v[2]);
+                machine_instruction[5] = get_numeric(v[3]);
+            }
+            // opcode 2 or 3 mean its in j format
+            break;
+        case 2:
+        case 3: break;
+
+            // others mean I format
+        default:
+            std::cout << v[1] << ' ' << v[2] << std::endl;
+
+            int n = 1;
+            machine_instruction[2] = get_register(v[n++]);
+            if (v.size() == 4)
+            {
+            
+                machine_instruction[1] = get_register(v[n++]);
+            }
+
+            try
+            {
+                machine_instruction[4] = get_numeric(v[n]);
+            }
+            catch (const std::runtime_error & e)
+            {
+                machine_instruction[4] = get_label(v[n], address);
+                
+            }
+    }
+    
+    std::cout << v[0] << " $" << machine_instruction[2] << ", $" << machine_instruction[1]
+              << ", " << machine_instruction[4] << std::endl;
+
+}
+
+//=================================================================================
+// Insert Label:
+//=================================================================================
+void Simulation::insert_label(std::string & label, uint32_t address)
+{
+    if (label != "" && label_.find(label) == label_.end())
+    {
+        std::cout << "entering\n";
+        label_[label] = address;
+        if (undefined_label_.find(label) != undefined_label_.end())
+        {
+            text_[PC_ - TS_ADDRESS]->imm() = address;
+            undefined_label_.erase(label);
+        }
+    }
+    else if (label != "")
+        throw std::runtime_error("Label already declared");
+
+}
+
+//=================================================================================
+// Get Label:
+//=================================================================================
+int16_t Simulation::get_label(std::string & s, uint32_t address)
+{
+    if (label_.find(s) != label_.end())
+    {
+        return (address);
+    }
+    undefined_label_[s] = address;
+    return 0;
+}
+
+
+void process_token(const std::vector< std::string > & token, uint32_t & address)
+{
+    if (size_ == MAX_TEXTSEGMENT_SIZE) throw SizeError();
+
+    if (token.size() == 0)
+    {
+    }
+    //===============================================================
+    // check if the operation is a pseudo instruction
+    //===============================================================
+    if (PSEUDO_INSTRUCTIONS.find(token[0]) != PSEUDO_INSTRUCTIONS.end())
+    {
+        // iteration over list of vectors of strings
+        for (auto p: PSEUDO_INSTRUCTIONS[token[0]])
+        {
+            // iteration over the vectors of string
+            std::vector<std::string > & v = p;
+            for (int i = 0; i < v.size(); ++i)
+            {
+                if (v[i].size() == 1 && v[i][0] >= '0' && v[i][0] <= '9')
+                {
+                    v[i] = token[v[i][0] - '0'];
+                }
+            }
+            // 0:operation_, 1:rs_, 2:rt_, 3:rd_, 4:imm_, 5:shamt_
+            int16_t machine_instruction[6] = {0};
+            convert_to_machine_format(v, machine_instruction, address);
+            instruction_[address] = (new MachineFormat(v));
+            address += 4;
+            std::cout << v << std::endl;
+        }
+    }
+    else
+    {
+        try
+        {
+            // 0:operation_, 1:rs_, 2:rt_, 3:rd_, 4:imm_, 5:shamt_
+            int16_t machine_instruction[6] = {0};
+            convert_to_machine_format(token, machine_instruction, address);
+            instruction_[address] = (new MachineFormat(machine_instruction));
+            address += 4;
+        }
+        catch (const std::runtime_error & e)
+        {
+            std::cerr << "Invalid Instruction -> " << e.what() << std::endl;
+            std::cout << machine_format_.size() << std::endl;
+            throw std::runtime_error("Instruction not accepted");
+        }
+    }
 }

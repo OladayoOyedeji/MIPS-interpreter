@@ -17,28 +17,7 @@ void get_operation(const std::string & s, int32_t & operation,
     }
 }
 
-int get_register(const std::string & s)
-{
-    if (REGISTER_NOMENCLATURE.find(s) != REGISTER_NOMENCLATURE.end())
-    {
-        // std::cout << "here?\n" << "rt" << s << ' '
-        //           << REGISTER_NOMENCLATURE[s] << std::endl;
-        return REGISTER_NOMENCLATURE[s];
-    }
-    else if (s.size() == 2 && s[0] == '$' && s[1] >= '0' && s[1] <= '9')
-    {
-        // std::cout << "no here?\n" << "rt" << s << ' ' << s[1] << std::endl;;
-        return (s[1] - '0');
-    }
-    else
-    {
-        // std::string error_message = "Register ";
-        // error_message.push_back(s);
-        // error_message.push_back("not found");
-        throw std::runtime_error("Register not found");
-    }
-    return -1;
-}
+
 
 MachineFormat::MachineFormat(const std::vector< std::string > & v)
 {

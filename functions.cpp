@@ -1,5 +1,21 @@
 #include "functions.h"
 
+void append_to_path(char * path, int & size, const char * file)
+{
+    // append dir to path
+    std::cout << "herro? [" << path[size - 2] << ']' << std::endl;
+    path[size++] = '/';
+    int i = 0;
+    while (true)
+    {
+        std::cout << '[' << path << "] " << file[i] << std::endl;
+        path[size] = file[i];
+        if (file[i++] == '\0') break;
+        size++;
+    }
+    std::cout << '[' << path << "] " << std::endl;
+}
+
 int32_t len(const char * s)
 {
     int32_t i = 0;
@@ -105,6 +121,35 @@ int get_numeric(const std::string & s)
     }
     return num * sign;
 }
+
+
+//
+int get_register(const std::string & s)
+{
+    if (REGISTER_NOMENCLATURE.find(s) != REGISTER_NOMENCLATURE.end())
+    {
+        // std::cout << "here?\n" << "rt" << s << ' '
+        //           << REGISTER_NOMENCLATURE[s] << std::endl;
+        return REGISTER_NOMENCLATURE[s];
+    }
+    else if (s.size() == 2 && s[0] == '$' && s[1] >= '0' && s[1] <= '9')
+    {
+        // std::cout << "no here?\n" << "rt" << s << ' ' << s[1] << std::endl;;
+        return (s[1] - '0');
+    }
+    else
+    {
+        // std::string error_message = "Register ";
+        // error_message.push_back(s);
+        // error_message.push_back("not found");
+        throw std::runtime_error("Register not found");
+    }
+    return -1;
+}
+
+
+
+
 
 // unsigned char * uint_to_hexad(int32_t i)
 // {}

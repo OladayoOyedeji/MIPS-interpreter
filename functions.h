@@ -13,7 +13,6 @@
 #include <fstream>
 #include <stdexcept>
 
-
 const int MAX_TEXTSEGMENT_SIZE = 268435456 - 67108864;
 const int TS_ADDRESS = 67108864;
 const int MAX_BUF = 1024;
@@ -53,18 +52,12 @@ static std::map<std::string, std::list< std::vector<std::string> > > PSEUDO_INST
 };
 
 static std::map< std::string, int32_t > OPERATIONS = {
-    {"lui", (7 << 6)},
-    {"ori", (13 << 6)},
-    {"add", 32},
-    {"addi", 512},
-    {"addu", 576},
-    {"div", 26},
-    {"divu", 27},
-    {"mfhi", 16},
-    {"mflo", 18},
-    {"lw", 35}
+    {"lui", (7 << 6)}, {"ori", (13 << 6)}, {"add", 32},
+    {"addi", 512}, {"addu", 576}, {"div", 26}, {"divu", 27},
+    {"mfhi", 16}, {"mflo", 18}, {"lw", 35}, {"beq", 256}
 };
 
+void append_to_path(char * path, int & size, const char * file="");
 void print_bin(int x, int len);
 int get_numeric(const std::string & s);
 void instruction_lexer(const std::string & s, std::vector< std::string > & token,
@@ -86,6 +79,10 @@ std::ostream & operator<<(std::ostream & cout, const std::vector<T> & v)
     std::cout << ']';
     return cout;
 }
+
+int get_register(const std::string & s);
+
+    
 //const char ** addressable_reg[32] = {"r0","at","v0",""}
 
 /* unsigned char * uint_to_hexad(int32_t i); */

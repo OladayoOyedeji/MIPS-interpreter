@@ -17,6 +17,14 @@ public:
     {}
     void print_addressh(int i) const;
     void insert(const std::vector< std::string > & token);
+    MachineFormat *& operator[](int i)
+    {
+        return machine_format_[i];
+    }
+    MachineFormat * operator[](int i) const
+    {
+        return machine_format_[i];
+    }
     void run_command();
 // private:
     std::vector< MachineFormat * > machine_format_;

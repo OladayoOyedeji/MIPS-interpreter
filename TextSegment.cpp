@@ -17,7 +17,6 @@ void TextSegment::insert(const std::vector< std::string > & token)
 
     if (token.size() == 0)
     {
-        throw std::runtime_error("");
     }
     //===============================================================
     // check if the operation is a pseudo instruction

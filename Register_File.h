@@ -27,8 +27,18 @@ public:
     {
         return x_[i];
     }
+    uint32_t HI()const
+    {
+        return HI_;
+    }
+    uint32_t LO()const
+    {
+        return LO_;
+    }
 private:
     uint32_t x_[32];
+    uint32_t HI_;
+    uint32_t LO_;
     
 };
 
