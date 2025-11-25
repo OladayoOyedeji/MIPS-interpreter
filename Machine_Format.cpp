@@ -30,14 +30,14 @@ MachineFormat::MachineFormat(const std::vector< std::string > & v)
     {
         throw std::runtime_error("Operation not found");
     }
-    std::cout << operation_ << std::endl;
+    // std::cout << operation_ << std::endl;
     int opcode = operation_ >> 6;
     int funct = operation_ & ((1 << 6) - 1);
 
-    print_bin(opcode, 6);
-    std::cout << ' ' ;
-    print_bin(funct, 6);
-    std::cout << std::endl;
+    // print_bin(opcode, 6);
+    // std::cout << ' ' ;
+    // print_bin(funct, 6);
+    // std::cout << std::endl;
 
     switch (opcode)
     {
@@ -65,7 +65,7 @@ MachineFormat::MachineFormat(const std::vector< std::string > & v)
 
             // others mean I format
         default:
-            std::cout << v[1] << ' ' << v[2] << std::endl;
+            // std::cout << v[1] << ' ' << v[2] << std::endl;
 
             rt_ = get_register(v[1]);
             
@@ -73,25 +73,29 @@ MachineFormat::MachineFormat(const std::vector< std::string > & v)
 
             imm_ = get_numeric(v[3]);
  
-            std::cout << v[0] << " $" << rt_ << ", $" << rs_ << ", " << imm_ << std::endl;
+            // std::cout << v[0] << " $" << rt_ << ", $" << rs_ << ", " << imm_ << std::endl;
     }
 }
 
-void MachineFormat::execute_code(RegisterFile & r)
+void MachineFormat::execute_code(RegisterFile & r, uint32_t & PC)
 {
     switch (operation_)
     {
         // case ADD:
         case 32:
-            std::cout << r[rs_] << ' ' << r[rt_] << std::endl;
+            // std::cout << r[rs_] << ' ' << r[rt_] << std::endl;
             r[rd_] = r[rs_] + r[rt_];
+            PC += 4;
             break;
         // CASE ORI:
         case 832:
             
             r[rt_] = r[rs_] | imm_;
+            PC += 4;
             //std::cout << r[rt_] << std::endl;
             
             break;
+        default:
+            PC += 4;
     }
 }

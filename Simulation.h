@@ -24,8 +24,14 @@ class Simulation
 {
 public:
     Simulation(const char * filename = "")
-        : filename_(filename), PC_(TS_ADDRESS)
-    {}
+        : filename_(filename), PC_(TS_ADDRESS), data_(new unsigned char[1024]), data_segment_size_(0)
+    {
+        //const char  s[1024] = "hello world !!!!\n what is your name?";
+        for (int i = 0; i < 100; ++i)
+        {
+            data_[i] = 0;
+        }
+    }
     void read_file();
     void display_curdir_files();
     int Robert_Language_lexer(const std::string & command, char * arg,
@@ -33,26 +39,29 @@ public:
     void run_sim(const char * filename = "");
     void print_option_message()
     {
-        std::cout << "[t] Text segment\n"
-                  << "[d] Data segment\n"
+        std::cout << "[s] Live simulation\n"
                   << "[?] Instruction manual\n"
-                  << "[p] Print system\n"
                   << "[l] Load file" << std::endl;
     }
     // void save_to_file(const char * filename);
-    void run_text();
-    // void run_data();
+    int run_text(uint32_t &);
+    int run_data();
     void show_reg() const;
+    void show_data() const;
     void print_system() const;
-    // void show_data();
     void show_labels() const;
-    void convert_to_machine_format(std::vector< std::string >& v, int16_t machine_instruction[], uint32_t address);
+    void convert_to_machine_format(const std::vector< std::string >& v, int32_t machine_instruction[], uint32_t address);
     void insert_label(std::string & label, uint32_t address);
-    int16_t get_label(std::string & s, uint32_t address);
+    int32_t get_label(const std::string & s, uint32_t address);
+    void process_token(const std::vector< std::string > & token,
+                       uint32_t & address);
+    void process_data_token(const std::vector< std::string > & token,
+                            uint32_t address);
 private:
     // TextSegment text_;
     std::map< uint32_t, MachineFormat * > instruction_;
-    //DataSegment data_;
+    unsigned char * data_;
+    uint32_t data_segment_size_;
     //int mode_;
     RegisterFile registers_;
     

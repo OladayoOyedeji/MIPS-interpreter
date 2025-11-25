@@ -15,6 +15,7 @@
 
 const int MAX_TEXTSEGMENT_SIZE = 268435456 - 67108864;
 const int TS_ADDRESS = 67108864;
+const int DS_ADDRESS = 268435456;
 const int MAX_BUF = 1024;
 // const int max_int = 18446744073709551616;
 
@@ -62,9 +63,12 @@ void print_bin(int x, int len);
 int get_numeric(const std::string & s);
 void instruction_lexer(const std::string & s, std::vector< std::string > & token,
                        std::string & Label);
+void data_lexer(const std::string & s, std::vector<std::string> & token,
+                std::string & Label);
 
 int32_t len(const char * s);
 bool strcmp(const std::string & s, const std::string & c);
+void print_unsigned_char(unsigned char c);
 template< typename T >
 std::ostream & operator<<(std::ostream & cout, const std::vector<T> & v)
 {
@@ -81,7 +85,6 @@ std::ostream & operator<<(std::ostream & cout, const std::vector<T> & v)
 }
 
 int get_register(const std::string & s);
-
     
 //const char ** addressable_reg[32] = {"r0","at","v0",""}
 

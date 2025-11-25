@@ -3,17 +3,17 @@
 void append_to_path(char * path, int & size, const char * file)
 {
     // append dir to path
-    std::cout << "herro? [" << path[size - 2] << ']' << std::endl;
+    // std::cout << "herro? [" << path[size - 2] << ']' << std::endl;
     path[size++] = '/';
     int i = 0;
     while (true)
     {
-        std::cout << '[' << path << "] " << file[i] << std::endl;
+        // std::cout << '[' << path << "] " << file[i] << std::endl;
         path[size] = file[i];
         if (file[i++] == '\0') break;
         size++;
     }
-    std::cout << '[' << path << "] " << std::endl;
+    // std::cout << '[' << path << "] " << std::endl;
 }
 
 int32_t len(const char * s)
@@ -28,15 +28,15 @@ int32_t len(const char * s)
 
 bool strcmp(const std::string & s, const std::string & c)
 {
-    std::cout << '[' << s << ' ' << c << ']' << std::endl;
-    std::cout << s.size() << ' ' << c.size() << std::endl;
+    // std::cout << '[' << s << ' ' << c << ']' << std::endl;
+    // std::cout << s.size() << ' ' << c.size() << std::endl;
     if (s.size() != c.size())
     {
         return false;
     }
     for (int i = 0; i < s.size(); ++i)
     {
-        std::cout << s[i] << ' ' << c[i] << std::endl;
+        // std::cout << s[i] << ' ' << c[i] << std::endl;
         if (s[i] != c[i])
             return false;
     }
@@ -111,12 +111,11 @@ int get_numeric(const std::string & s)
         if (s[i] <= '9' && s[i] >= '0')
         {
             num += (s[i] - '0') * pow(10, size - i - 1);
-            std::cout << num << ' ' << s[i] << std::endl;
+            // std::cout << num << ' ' << s[i] << std::endl;
         }
         else
         {
-            std::cout << "what the hell?\n";
-            return -99999;
+            throw std::runtime_error("");
         }
     }
     return num * sign;
@@ -147,7 +146,94 @@ int get_register(const std::string & s)
     return -1;
 }
 
+void data_lexer(const std::string & s, std::vector<std::string> & token, std::string & Label)
+{
+    int i = 0;
+    int j = 0;
+    while (j != s.size())
+    {
+        if (s[j] == ':' && Label == "")
+        {
+            Label = s.substr(i, j - i);
 
+            if (Label == "")
+            {
+                throw std::runtime_error("Syntax Error");
+            }
+            i = j + 1;
+        }
+        else if (s[j] == ' ' || s[j] == ',' || s[j] == '\t')
+        {
+            if (j - i == 0)
+            {
+                i++;
+                
+            }
+            else
+            {
+                token.push_back(s.substr(i, j - i));
+                i = j+1;
+            }
+            if (s[i] == '\"' || s[i] == '\'')
+            {
+                char c = s[i];
+                //token.push_back(c);
+                j = ++i;
+                while (s[++j] != c)
+                {
+                    if (s[j] == '\0')
+                    {
+                        throw std::runtime_error("Invalid instruction");
+                    }
+                }
+                token.push_back(s.substr(i, j - i));
+                i = j + 1;
+            }
+        }
+        j++;
+    }
+    if (j - i == 0)
+    {
+        i++;
+    }
+    else
+    {
+        token.push_back(s.substr(i, j - i));
+        i = j+1;
+    }
+}
+
+void print_unsigned_char(unsigned char c)
+{
+    if (int(c) > 31 && int(c) < 128)
+    { std::cout << c; return;}
+    else if (int(c)>127) {std::cout << '.'; return;}
+    
+    switch (c)
+    {
+        case '\n':
+            std::cout << "\\n";
+            break;
+        case '\t':
+            std::cout << "\\t";
+            break;
+        case '\0':
+            std::cout << "\\0";
+            break;
+        case '\"':
+            std::cout << "\\";
+            break;
+        case '\f':
+            std::cout << "\\t";
+            break;
+        case '\r':
+            std::cout << "\\r";
+            break;
+        default:
+            std::cout << '_';
+    }
+    
+}
 
 
 
