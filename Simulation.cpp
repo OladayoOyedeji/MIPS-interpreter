@@ -308,6 +308,7 @@ int Simulation::run_text(uint32_t & address)
             std::vector< std::string > token;
             
             instruction_lexer(s, token, label);
+            std::cout << token << std::endl;
             if (label == "" && token.size() == 1)
             {
                 if (strcmp(s, ".data"))
@@ -319,9 +320,9 @@ int Simulation::run_text(uint32_t & address)
                      print_system();
                 }
             }
-            process_token(token, address);
-            
             insert_label(label, address);
+            
+            process_token(token, address);
             
             // std::cout << "Undefined Label size: " << undefined_label_.size() << std::endl;
             if (undefined_label_.size() == 0)
@@ -334,7 +335,7 @@ int Simulation::run_text(uint32_t & address)
                 
                 while (PC_ != address)
                 {
-                    instruction_[PC_]->execute_code(registers_, PC_);
+                    instruction_[PC_]->execute_code(registers_, PC_, data_);
                     
                 }
             }
@@ -622,7 +623,14 @@ void Simulation::convert_to_machine_format(const std::vector< std::string >& v,
             // opcode 2 or 3 mean its in j format
             break;
         case 2:
-        case 3: break;
+        case 3:
+            try{
+                machine_instruction[4] = get_numeric(v[1]);
+            }
+            catch (const std::runtime_error & e){
+                machine_instruction[4] = get_label(v[1], address);
+            }
+            break;
 
             // others mean I format
         default:

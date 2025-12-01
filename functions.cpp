@@ -17,8 +17,7 @@ void append_to_path(char * path, int & size, const char * file)
 }
 
 int32_t len(const char * s)
-{
-    int32_t i = 0;
+{    int32_t i = 0;
     while (s[i] != '\0')
     {
         i++;

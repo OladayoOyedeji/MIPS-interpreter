@@ -15,7 +15,7 @@ public:
         : operation_(v[0]), rs_(v[1]), rt_(v[2]),
           rd_(v[3]), imm_(v[4]), shamt_(v[5])
     {}
-    void execute_code(RegisterFile & r, uint32_t & PC);
+    void execute_code(RegisterFile & r, uint32_t & PC, unsigned char * memory);
     int32_t imm() const
     {
         return imm_;

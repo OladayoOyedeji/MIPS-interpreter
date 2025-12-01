@@ -12,6 +12,7 @@
 #include <list>
 #include <fstream>
 #include <stdexcept>
+#include <cstdint>
 
 const int MAX_TEXTSEGMENT_SIZE = 268435456 - 67108864;
 const int TS_ADDRESS = 67108864;
@@ -53,9 +54,15 @@ static std::map<std::string, std::list< std::vector<std::string> > > PSEUDO_INST
 };
 
 static std::map< std::string, int32_t > OPERATIONS = {
-    {"lui", (7 << 6)}, {"ori", (13 << 6)}, {"add", 32},
-    {"addi", 512}, {"addu", 576}, {"div", 26}, {"divu", 27},
-    {"mfhi", 16}, {"mflo", 18}, {"lw", 35}, {"beq", 256}
+    {"add", 32}, {"addi", 512}, {"addiu", 576}, {"addu", 33},
+    {"and", 36}, {"andi", 768}, {"aui", 960}, 
+    {"beq", 256}, {"blez", 384}, {"bltz", 64}, {"bne", 320},
+    {"div", 26}, {"divu", 27},
+    {"j", 128}, {"jal", 192}, {"jr", 9}, 
+    {"lui", (7 << 6)}, {"lw", 2240},
+    {"mfhi", 16}, {"mflo", 18}, {"mul", 898}, {"mult", 24}, {"multu", 25},
+    {"ori", (13 << 6)},
+    {"slt", 42}, {"sub", 34}, {"subu", 35}, {"sw", 2752}, {"syscall", 12}
 };
 
 void append_to_path(char * path, int & size, const char * file="");
