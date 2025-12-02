@@ -52,6 +52,36 @@ void print_bin(int x, int len)
     std::cout << std::dec << ' ' << x; 
 }
 
+void get_imm_reg(const std::string & s, std::vector< std::string > & token)
+{
+    int i = 0;
+    for (int j = 0; j < s.size(); ++j)
+    {
+        if (s[j] == '(')
+        {
+            token.push_back(s.substr(i, j - i));
+            i = j + 1;
+            break;
+        }
+        else if (s[i] < '0' || s[i] > '9')
+        {
+            throw std::runtime_error("Invalid Instruction");
+        }
+    }
+    if (token.size() == 1)
+    {
+        for (int j = 0; j < s.size(); ++j)
+        {
+            if (s[j] == ')')
+            {
+                token.push_back(s.substr(i, j - i));
+                return;
+            }
+        }
+    }
+    throw std::runtime_error("Invalid Instruction");
+}
+
 void instruction_lexer(const std::string & s, std::vector< std::string > & token,
                        std::string & Label)
 {
@@ -59,6 +89,8 @@ void instruction_lexer(const std::string & s, std::vector< std::string > & token
     int j = 0;
     while (j != s.size())
     {
+        if (s[j] == '#')
+            break;
         if (s[j] == ':' && Label == "")
         {
             Label = s.substr(i, j - i);

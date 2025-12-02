@@ -37,21 +37,7 @@ static std::map< std::string, int32_t > REGISTER_NOMENCLATURE = {
 // ble ->[[slt $1, $%s, $%s], [beq $1, $0, %s]]
 // bgt ->[[slt $1, $%s, $%s], [bne $1, $0, %s]]
 //=========================================================================================================
-static std::map<std::string, std::list< std::vector<std::string> > > PSEUDO_INSTRUCTIONS = {
-    {
-        "li",
-        {
-            {"ori", "1", "$0", "2"} // This is one vector<string>
-        }
-    },
-    {
-        "la",
-        {
-            {"lui", "$1", "2"},
-            {"ori", "1", "$1", "16"}
-        }
-    }
-};
+static std::set<std::string > PSEUDO_INSTRUCTIONS = {"li","la","blt", "ble", "bgt", "bge"};
 
 static std::map< std::string, int32_t > OPERATIONS = {
     {"add", 32}, {"addi", 512}, {"addiu", 576}, {"addu", 33},
@@ -59,7 +45,7 @@ static std::map< std::string, int32_t > OPERATIONS = {
     {"beq", 256}, {"blez", 384}, {"bltz", 64}, {"bne", 320},
     {"div", 26}, {"divu", 27},
     {"j", 128}, {"jal", 192}, {"jr", 9}, 
-    {"lui", (7 << 6)}, {"lw", 2240},
+    {"lui", 960}, {"lw", 2240},
     {"mfhi", 16}, {"mflo", 18}, {"mul", 898}, {"mult", 24}, {"multu", 25},
     {"ori", (13 << 6)},
     {"slt", 42}, {"sub", 34}, {"subu", 35}, {"sw", 2752}, {"syscall", 12}
@@ -68,6 +54,7 @@ static std::map< std::string, int32_t > OPERATIONS = {
 void append_to_path(char * path, int & size, const char * file="");
 void print_bin(int x, int len);
 int get_numeric(const std::string & s);
+void get_imm_reg(const std::string & s, std::vector< std::string > & token);
 void instruction_lexer(const std::string & s, std::vector< std::string > & token,
                        std::string & Label);
 void data_lexer(const std::string & s, std::vector<std::string> & token,
@@ -92,7 +79,7 @@ std::ostream & operator<<(std::ostream & cout, const std::vector<T> & v)
 }
 
 int get_register(const std::string & s);
-    
+
 //const char ** addressable_reg[32] = {"r0","at","v0",""}
 
 /* unsigned char * uint_to_hexad(int32_t i); */

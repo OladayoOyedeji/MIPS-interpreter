@@ -44,21 +44,23 @@ public:
                   << "[l] Load file" << std::endl;
     }
     // void save_to_file(const char * filename);
+    void get_input(std::ifstream &, std::string &, bool break_, uint32_t address);
     int run_text(uint32_t &);
     int run_data();
     void show_reg() const;
     void show_data() const;
     void print_system() const;
     void show_labels() const;
+    bool SignalException();
     void convert_to_machine_format(const std::vector< std::string >& v, int32_t machine_instruction[], uint32_t address);
     void insert_label(std::string & label, uint32_t address);
     int32_t get_label(const std::string & s, uint32_t address);
+    void pseudo_to_instruction(const std::vector< std::string > & token, uint32_t & address);
     void process_token(const std::vector< std::string > & token,
                        uint32_t & address);
     void process_data_token(const std::vector< std::string > & token,
                             uint32_t address);
 private:
-    // TextSegment text_;
     std::map< uint32_t, MachineFormat * > instruction_;
     unsigned char * data_;
     uint32_t data_segment_size_;

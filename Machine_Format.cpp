@@ -19,7 +19,6 @@ void get_operation(const std::string & s, int32_t & operation,
 }
 
 
-
 MachineFormat::MachineFormat(const std::vector< std::string > & v)
 {
     // get the operation first
@@ -80,9 +79,13 @@ MachineFormat::MachineFormat(const std::vector< std::string > & v)
     }
 }
 
+
+
 void MachineFormat::execute_code(RegisterFile & r, uint32_t & PC, unsigned char * memory)
 {
-    std::cout << PC << std::endl;
+    //std::cout << PC << std::endl;
+    unsigned char * p;
+    int i;
     switch (operation_)
     {
         // case JR:
@@ -95,7 +98,7 @@ void MachineFormat::execute_code(RegisterFile & r, uint32_t & PC, unsigned char 
         // case SYSCALL
         case 12:
             //SignalException(r[2], r[4]);
-            PC += 4;
+            throw std::runtime_error("Signal Exception");
             break;
             
         // case MFHI:
@@ -208,25 +211,34 @@ void MachineFormat::execute_code(RegisterFile & r, uint32_t & PC, unsigned char 
         case 898:
             break;
 
+        // case LUI:
+        case 960:
+            r[rt_] = (imm_ << 16);
+            PC += 4;
+            break;
+            
         // case LW:
-        // case 2240:
-        //     unsigned char * p = (unsigned char *) &(r[rt_]);
-        //     int i = imm_ - DS_ADDRESS;
-        //     *p = memory[i];
-        //     *(p+1) = memory[i+1];
-        //     *(p+2) = memory[i+2];
-        //     *(p+3) = memory[i+3];
-        //     break;
+        case 2240:
+            p = (unsigned char *) &(r[rt_]);
+            i = r[rs_] - DS_ADDRESS + imm_;
+            std::cout << std::dec << i << std::endl;
+            *p = memory[i];
+            *(p+1) = memory[i+1];
+            *(p+2) = memory[i+2];
+            *(p+3) = memory[i+3];
+            PC += 4;
+            break;
             
         // case SW:
         case 2752:
         {
-            unsigned char * p = (unsigned char *) &(r[rt_]);
-            int i = imm_ - DS_ADDRESS;
+            p = (unsigned char *) &(r[rt_]);
+            i = imm_ - DS_ADDRESS;
             memory[i] = *p;
             memory[i+1] = *(p+1);
             memory[i+2] = *(p+2);
             memory[i+3] = *(p+3);
+            PC += 4;
             break;
         }   
         default:

@@ -253,7 +253,21 @@ void Simulation::run_sim(const char * filename)
                 break;
             case 'l':
                 display_curdir_files();
-                read_file();
+                //read_file();
+                mode = 0;
+                undefined_label_.insert({"main", TS_ADDRESS});
+                uint32_t starting_address = TS_ADDRESS;
+                while (mode != -1)
+                {
+                    if (mode == 0)
+                    {
+                        mode = run_text(starting_address);
+                    }
+                    else if (mode == 1)
+                    {
+                        mode = run_data();
+                    }
+                }
                 
         }
         if (option == 'q')
@@ -275,6 +289,37 @@ void Simulation::run_sim(const char * filename)
     // TODO: save to file
 }
 
+//=================================================================================
+// Get Input: 
+//=================================================================================
+void Simulation::get_input(std::ifstream & f, std::string & input, bool break_, uint32_t address)
+{
+    // static std::ifstream f(filename_, std::ios::in);
+    if (filename_ == "")
+    {
+        // get input
+        char s[1024];
+        std::cout << "TEXT:" << "0x" << std::hex << address;
+        std::cout << " > ";
+        // read string from keyboard and put into input array of characters
+        
+        std::cin.getline(s, MAX_BUF);
+        if (std::cin.eof()) break_ = true;
+        if (std::cin.fail() || std::cin.bad())
+        {
+            std::cin.clear();
+            std::cin.ignore(std::numeric_limits<std::streamsize>::max(),
+                            '\n');
+        }
+        input = std::string(s);
+    }
+    else
+    {
+        std::getline(f, input);
+        if (f.eof()) break_ = true;
+    }
+}
+
 // void Simulation::save_to_file(const char * filename)
 // {}
 
@@ -284,32 +329,37 @@ void Simulation::run_sim(const char * filename)
 int Simulation::run_text(uint32_t & address)
 {
     int i = 0;
-    while (true)
+    std::ifstream f(filename_, std::ios::in);
+    bool break_;
+    while (!break_)
     {
+        std::string s;
+        /*
         // get input
         std::cout << "TEXT:" << "0x" << std::hex << address;
         std::cout << " > ";
         // read string from keyboard and put into input array of characters
         
-        char s[MAX_BUF];
         std::cin.getline(s, MAX_BUF);
         if (std::cin.eof()) break;
         if (std::cin.fail() || std::cin.bad())
         {
-            std::cin.clear();
-            std::cin.ignore(std::numeric_limits<std::streamsize>::max(),
-                            '\n');
+        std::cin.clear();
+        std::cin.ignore(std::numeric_limits<std::streamsize>::max(),
+        '\n');
         }
-
-        try
-        {
-
-            std::string label = "";
-            std::vector< std::string > token;
+        */
+        
+        get_input(f, s, break_, address);
+        std::cout << break_ << std::endl;
+        std::string label = "";
+        std::vector< std::string > token;
             
-            instruction_lexer(s, token, label);
-            std::cout << token << std::endl;
-            if (label == "" && token.size() == 1)
+        instruction_lexer(s, token, label);
+        std::cout << "Label: " << label << token << std::endl;
+        if (label == "")
+        {
+            if (token.size() == 1)
             {
                 if (strcmp(s, ".data"))
                 {
@@ -317,12 +367,17 @@ int Simulation::run_text(uint32_t & address)
                 }
                 else if (strcmp(s, "{print}"))
                 {
-                     print_system();
+                    print_system();
                 }
             }
-            insert_label(label, address);
+        }
+        try
+        {
+
+            
             
             process_token(token, address);
+            insert_label(label, address - 4);
             
             // std::cout << "Undefined Label size: " << undefined_label_.size() << std::endl;
             if (undefined_label_.size() == 0)
@@ -336,21 +391,50 @@ int Simulation::run_text(uint32_t & address)
                 while (PC_ != address)
                 {
                     instruction_[PC_]->execute_code(registers_, PC_, data_);
-                    
                 }
             }
-        
-            
         }
         catch (const std::runtime_error & e)
         {
-            std::cerr  << e.what() << std::endl;
+            if (strcmp(e.what(), "Signal Exception"))
+            {
+                SignalException();
+            }
+            else
+                std::cerr  << e.what() << std::endl;
         }
        
     }
     return -1;
 }
 
+bool Simulation::SignalException()
+{
+    int i;
+    bool break_ = false;
+    switch (registers_[2])
+    {
+        case 1:
+            std::cout << "Output: "<< registers_[4];
+            break;
+        case 4:
+            i = registers_[4] - DS_ADDRESS;
+            // if (i < 0) throw std::runtime_err();
+            std::cout << "Output: ";
+            while (data_[i] != '\0')
+            {
+                std::cout << data_[i++];
+            }
+            break;
+        case 5:
+            std::cin >> registers_[2];
+            break;
+        case 10:
+            break_ = true;
+    }
+    PC_ += 4;
+    return break_;
+}
 //=================================================================================
 // Run Data:
 //=================================================================================
@@ -390,8 +474,9 @@ int Simulation::run_data()
         }
 
         // std::cout << token << " Label: " << label<< std::endl;
-        process_data_token(token, DS_ADDRESS + data_segment_size_);
         insert_label(label, DS_ADDRESS + data_segment_size_);
+        if (token.size() != 0)
+            process_data_token(token, DS_ADDRESS + data_segment_size_);
         
         // get label
 
@@ -596,34 +681,75 @@ void Simulation::convert_to_machine_format(const std::vector< std::string >& v,
     int opcode = machine_instruction[0] >> 6;
     int funct = machine_instruction[0] & ((1 << 6) - 1);
 
-    // print_bin(opcode, 6);
-    // std::cout << ' ' ;
-    // print_bin(funct, 6);
-    // std::cout << std::endl;
-
     switch (opcode)
     {
         // opcode 0 means it in R format
-        case 0: 
-            machine_instruction[3] = get_register(v[1]);
+        case 0:
+            // if ()
+            // machine_instruction[3] = get_register(v[1]);
 
-            //std::cout << v.size() << std::endl;
-            // 3 register operation
-            if (v.size() == 4)
+            // //std::cout << v.size() << std::endl;
+            // // 3 register operation
+            // if (v.size() == 4)
+            // {
+            //     machine_instruction[1] = get_register(v[2]);
+            //     machine_instruction[2] = get_register(v[3]);
+            // }
+            // else
+            // {
+            //     // shift
+            //     machine_instruction[2] = get_register(v[2]);
+            //     machine_instruction[5] = get_numeric(v[3]);
+            // }
+            // // opcode 2 or 3 mean its in j format
+            // shift operations
+            if (funct >= 0 && funct <= 7)
             {
-                machine_instruction[1] = get_register(v[2]);
-                machine_instruction[2] = get_register(v[3]);
-            }
-            else
-            {
-                // shift
+                if (v.size() != 4)
+                {
+                    throw std::runtime_error("Invalid instruction");
+                }
+                machine_instruction[3] = get_register(v[1]);
                 machine_instruction[2] = get_register(v[2]);
                 machine_instruction[5] = get_numeric(v[3]);
             }
-            // opcode 2 or 3 mean its in j format
+            // syscall operation
+            else if (funct == 12)
+            {
+                if (v.size() != 1)
+                {
+                    throw std::runtime_error("Invalid instruction");
+                }
+            }
+            // jr operation
+            else if (funct == 9)
+            {
+                if (v.size() != 2)
+                {
+                    throw std::runtime_error("Invalid instruction");
+                }
+                machine_instruction[1] = get_register(v[1]);
+            }
+            // 
+            else if (funct >= 24 && funct <= 27)
+            {
+                if (v.size() != 3)
+                {
+                    throw std::runtime_error("Invalid instruction");
+                }
+                machine_instruction[1] = get_register(v[1]);
+                machine_instruction[2] = get_register(v[2]);
+            }
+            else
+            {
+                machine_instruction[3] = get_register(v[1]);
+                machine_instruction[1] = get_register(v[2]);
+                machine_instruction[2] = get_register(v[3]);
+            }
             break;
         case 2:
         case 3:
+            if (v.size() != 2) throw std::runtime_error("Invalid Instruction");
             try{
                 machine_instruction[4] = get_numeric(v[1]);
             }
@@ -633,26 +759,74 @@ void Simulation::convert_to_machine_format(const std::vector< std::string >& v,
             break;
 
             // others mean I format
-        default:
-            // std::cout << v[1] << ' ' << v[2] << std::endl;
-
-            int n = 1;
-            machine_instruction[2] = get_register(v[n++]);
-            if (v.size() == 4)
-            {
-            
-                machine_instruction[1] = get_register(v[n++]);
-            }
-
-            try
-            {
-                machine_instruction[4] = get_numeric(v[n]);
+        case 4:
+        case 5:
+            if (v.size() != 4) throw std::runtime_error("Invalid Instruction");
+            machine_instruction[1] = get_register(v[1]);
+            machine_instruction[2] = get_register(v[2]);
+            try{
+                machine_instruction[4] = get_numeric(v[3]);
             }
             catch (const std::runtime_error & e)
             {
-                machine_instruction[4] = get_label(v[n], address);
-                
+                machine_instruction[4] = get_label(v[3], address);
             }
+            break;
+        case 6:
+        case 7:
+            if (v.size() != 3) throw std::runtime_error("Invalid Instruction");
+            machine_instruction[1] = get_register(v[1]);
+            try{
+                machine_instruction[4] = get_numeric(v[2]);
+            }
+            catch (const std::runtime_error & e)
+            {
+                machine_instruction[4] = get_label(v[2], address);
+            }
+            break;
+
+        case 15:
+            if (v.size() != 2) throw std::runtime_error("Invalid Instruction");
+            machine_instruction[2] = get_register(v[1]);
+            break;
+        case 32:
+        case 33:
+        case 35:
+        case 36:
+        case 37:
+        case 43:
+        case 41:
+        case 40:
+            if (v.size() != 3) throw std::runtime_error("Invalid Instruction");
+            machine_instruction[2] = get_register(v[1]);
+            
+            std::vector<std::string > token;
+
+            get_imm_reg(v[2], token);
+            machine_instruction[4] = get_numeric(token[0]);
+            machine_instruction[1] = get_register(token[1]);
+            break;
+            //default:
+            // std::cout << v[1] << ' ' << v[2] << std::endl;
+
+            // int n = 1;
+            // machine_instruction[2] = get_register(v[n++]);
+            // if (v.size() == 4)
+            // {
+            
+            //     machine_instruction[1] = get_register(v[n++]);
+            // }
+
+            // try
+            // {
+            //     machine_instruction[4] = get_numeric(v[n]);
+            // }
+            // catch (const std::runtime_error & e)
+            // {
+            //     machine_instruction[4] = get_label(v[n], address);
+                
+            // }
+            
     }
     
     // std::cout << v[0] << " $" << machine_instruction[2] << ", $" << machine_instruction[1]
@@ -694,6 +868,84 @@ int32_t Simulation::get_label(const std::string & s, uint32_t address)
     return 0;
 }
 
+void Simulation::pseudo_to_instruction(const std::vector< std::string > & token, uint32_t & address)
+{
+    if (token[0] == "li")
+    {
+        if (token.size() != 3)
+            throw std::runtime_error("Invalid Instruction");
+        
+        int imm;
+        
+        imm = get_numeric(token[2]);
+        
+        int32_t machine_instruction[6];
+        machine_instruction[0] = OPERATIONS["lui"];
+        machine_instruction[1] = 0;
+        machine_instruction[2] = get_register("$at");
+        machine_instruction[3] = 0;
+        machine_instruction[4] = imm >> 16;
+        machine_instruction[5] = 0;
+
+        instruction_[address] = (new MachineFormat(machine_instruction));
+        address += 4;
+
+        machine_instruction[0] = OPERATIONS["ori"];
+        machine_instruction[1] = get_register("$at");
+        machine_instruction[2] = get_register(token[1]);
+        machine_instruction[3] = 0;
+        machine_instruction[4] = imm & ((1 << 16) - 1);
+        machine_instruction[5] = 0;
+        instruction_[address] = (new MachineFormat(machine_instruction));
+        address += 4;
+    }
+    else if (token[0] == "la")
+    {
+        if (token.size() != 3)
+            throw std::runtime_error("Invalid Instruction");
+        
+        int imm;
+
+        try
+        {
+            imm = get_numeric(token[2]);
+        }
+        catch (std::runtime_error & e)
+        {
+            imm = get_label(token[2], address);
+        }
+
+        int32_t machine_instruction[6];
+        machine_instruction[0] = OPERATIONS["lui"];
+        machine_instruction[1] = 0;
+        machine_instruction[2] = get_register("$at");
+        machine_instruction[3] = 0;
+        machine_instruction[4] = imm >> 16;
+        machine_instruction[5] = 0;
+        instruction_[address] = (new MachineFormat(machine_instruction, 1));
+
+        address += 4;
+
+        try
+        {
+            imm = get_numeric(token[2]);
+        }
+        catch (std::runtime_error & e)
+        {
+            imm = get_label(token[2], address);
+        }
+        
+        machine_instruction[0] = OPERATIONS["ori"];
+        machine_instruction[1] = get_register("$at");
+        machine_instruction[2] = get_register(token[1]);
+        machine_instruction[3] = 0;
+        machine_instruction[4] = imm & ((1 << 16) - 1);
+        machine_instruction[5] = 0;
+        instruction_[address] = (new MachineFormat(machine_instruction, 2));
+        address += 4;
+    }
+}
+
 //=================================================================================
 // Process Token:
 //=================================================================================
@@ -712,26 +964,27 @@ void Simulation::process_token(const std::vector< std::string > & token, uint32_
     if (PSEUDO_INSTRUCTIONS.find(token[0]) != PSEUDO_INSTRUCTIONS.end())
     {
         // iteration over list of vectors of strings
-        for (auto p: PSEUDO_INSTRUCTIONS[token[0]])
-        {
-            // iteration over the vectors of string
-            std::vector<std::string > & v = p;
-            for (int i = 0; i < v.size(); ++i)
-            {
-                if (v[i].size() == 1 && v[i][0] >= '0' && v[i][0] <= '9')
-                {
-                    v[i] = token[v[i][0] - '0'];
-                }
-            }
-            // 0:operation_, 1:rs_, 2:rt_, 3:rd_, 4:imm_, 5:shamt_
-            int32_t machine_instruction[6] = {0};
-            // std::cout << address << std::endl;
-            convert_to_machine_format(v, machine_instruction, address);
-            instruction_[address] = (new MachineFormat(v));
-            address += 4;
-            // std::cout << address << std::endl;
-            // std::cout << v << std::endl;
-        }
+        // for (auto p: PSEUDO_INSTRUCTIONS[token[0]])
+        // {
+        //     // iteration over the vectors of string
+        //     std::vector<std::string > & v = p;
+        //     for (int i = 0; i < v.size(); ++i)
+        //     {
+        //         if (v[i].size() == 1 && v[i][0] >= '0' && v[i][0] <= '9')
+        //         {
+        //             v[i] = token[v[i][0] - '0'];
+        //         }
+        //     }
+        //     // 0:operation_, 1:rs_, 2:rt_, 3:rd_, 4:imm_, 5:shamt_
+        //     int32_t machine_instruction[6] = {0};
+        //     // std::cout << address << std::endl;
+        //     convert_to_machine_format(v, machine_instruction, address);
+        //     instruction_[address] = (new MachineFormat(v));
+        //     address += 4;
+        //     // std::cout << address << std::endl;
+        //     // std::cout << v << std::endl;
+        // }
+        pseudo_to_instruction(token, address);
     }
     else
     {
