@@ -77,8 +77,6 @@ bit addu(word * ret, word x, word y)
 void subu (word * ret, word x, word y)
 {
     // ret = x + (2^32 - y)
-    printbits(x);
-    printbits(y);
     addu(ret, x, (~y + 1));
 }
 
@@ -89,8 +87,7 @@ void multu(word * HI, word * LO, word x, word y)
     word hi, lo;
     lo = x;
     hi = 0;
-    printbits(x);
-    printbits(y);
+    
     for (int i = 0; i < 64; ++i)
     {
         bit c = addu(LO, *LO, lo * (y & 1));
@@ -102,11 +99,36 @@ void multu(word * HI, word * LO, word x, word y)
     }
 }
 
+
+int getAbs(int n)
+{
+    int const mask = n >> 31;
+    //std::cout << mask << std::endl;
+    return ((n + mask) ^ mask);
+}
+
+void div(word * HI, word * LO, word x, word y)
+{
+    // get the sign of the q
+    bit sign = (x >> 31) & (y >> 31);
+    
+    word x1 = getAbs(x);
+    word y1 = getAbs(y);
+
+    divu(HI, LO, x1, y1);
+    
+    if (sign) ~(*LO) + 1;
+    
+    *HI = x - y * *LO;
+    
+}
+
 void divu(word * r,  word * q, word x, word y)
 {
+    if (y == 0) throw std::runtime_error("Division by Zero Error");
     *q = 0;
     *r = x;
-    word sum = y;
+    int64_t sum = y;
     
     while (x > sum)
     {
@@ -128,3 +150,12 @@ void divu(word * r,  word * q, word x, word y)
         
     }
 }
+
+// bit add(word * ret, word x, word y)
+// {}
+// void sub(word * ret, word x, word y)
+// {}
+// void mult(word * HI, word * LO, word x, word y)
+// {}
+// void div(word * r,  word * q, word x, word y)
+// {}

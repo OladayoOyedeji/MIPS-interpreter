@@ -4,7 +4,6 @@
 #include "functions.h"
 #include "Register_File.h"
 
-
 class MachineFormat
 {
 public:
@@ -16,26 +15,21 @@ public:
         : operation_(v[0]), rs_(v[1]), rt_(v[2]),
           rd_(v[3]), imm_(v[4]), shamt_(v[5]), imm_mode(i)
     {}
-    void execute_code(RegisterFile & r, uint32_t & PC, unsigned char * memory);
-    int32_t imm() const
-    {
-        return imm_;
-    }
-    int32_t & imm()
-    {
-        return imm_;
-    }
-    void insert_imm(int32_t imm)
-    {
-        if (imm_mode == 1)
-        {
-            imm_ = imm >> 16;
-        }
-        else if (imm_mode == 2)
-        {
-            imm_ = imm & ((1 << 16) - 1);
-        }
-    }
+    
+    int32_t imm() const;
+    int32_t & imm();
+    void insert_imm(int32_t imm);
+    int32_t operation() const;
+    int32_t & operation();
+    int32_t rs() const;
+    int32_t & rs();
+    int32_t rt() const;
+    int32_t & rt();
+    int32_t rd() const;
+    int32_t & rd();
+    int32_t shamt() const;
+    int32_t & shamt();
+    void make_new_token() const;
 private:
     int32_t operation_;
     int32_t rs_;
@@ -46,8 +40,9 @@ private:
 
     // 0:as it is, 1:upper 16 bit, 2:lower 16 bit
     int imm_mode;
-    
+    std::string label_;
     std::string instruction_;
+    std::vector< std::string > token_;
 };
 
 

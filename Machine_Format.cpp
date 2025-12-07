@@ -1,5 +1,4 @@
 #include "Machine_Format.h"
-#include "Arithmetic_operations.h"
 
 void get_operation(const std::string & s, int32_t & operation,
                    int32_t & type)
@@ -79,169 +78,274 @@ MachineFormat::MachineFormat(const std::vector< std::string > & v)
     }
 }
 
-
-
-void MachineFormat::execute_code(RegisterFile & r, uint32_t & PC, unsigned char * memory)
+int32_t MachineFormat::imm() const
 {
-    //std::cout << PC << std::endl;
-    unsigned char * p;
-    int i;
-    switch (operation_)
+    return imm_;
+}
+int32_t & MachineFormat::imm()
+{
+    return imm_;
+}
+void MachineFormat::insert_imm(int32_t imm)
+{
+    if (imm_mode == 1)
     {
-        // case JR:
+        imm_ = imm >> 16;
+    }
+    else if (imm_mode == 2)
+    {
+        imm_ = imm & ((1 << 16) - 1);
+    }
+    else
+        imm_ = imm;
+}
+    
+int32_t MachineFormat::operation() const
+{
+    return operation_;
+}
+    
+int32_t & MachineFormat::operation()
+{
+    return operation_;
+}
+    
+int32_t MachineFormat::rs() const
+{
+    return rs_;
+}
+    
+int32_t & MachineFormat::rs()
+{
+    return rs_;
+}
+    
+int32_t MachineFormat::rt() const
+{
+    return rt_;
+}
+    
+int32_t & MachineFormat::rt()
+{
+    return rt_;
+}
+    
+int32_t MachineFormat::rd() const
+{
+    return rd_;
+}
+
+int32_t & MachineFormat::rd()
+{
+    return rd_;
+}
+    
+int32_t MachineFormat::shamt() const
+{
+    return shamt_;
+}
+
+int32_t & MachineFormat::shamt()
+{
+    return shamt_;
+}
+
+
+void MachineFormat::make_new_token() const
+{
+    // int opcode = operation_ >> 6;
+    // int funct = operation_ & ((1 << 6) - 1);
+
+    // for (int i = 1; i < token_.size(); ++i)
+    // {
+    //     try
+    //     {
+    //         token_[i] = "$" + std::to_string(get_register(token_[i]));
+    //     }
+    //     catch (const std::runtime_error & e)
+    //     {
+    //         std::vector< std::string > v;
+    //         try
+    //         {
+    //             get_imm_reg(token_[i], v);
+    //             std::string reg = "$" + std::to_string(get_register(v[1]));
+    //             token_[i] = v[0] + "(" + reg + ")";
+    //         }
+    //         catch (const std::runtime_error & e)
+    //         {
+    //             token_[i] = std::to_string(imm_);
+    //         }
+    //     }
+    // }
+    // return token_;
+
+    std::string code;
+    switch (operation())
+    {
+        // case JR: jr rs
         case 9:
-            PC = r[rs_];
-            PC += 4;
-            // machine code 0 <-> r[rs_] <-> 0 <-> 0 <-> 0 <-> func
+            code = "jr\t" + std::to_string(rs_);
             break;
             
-        // case SYSCALL
+        // case SYSCALL: syscall
         case 12:
-            //SignalException(r[2], r[4]);
-            throw std::runtime_error("Signal Exception");
+            code = "syscall";
             break;
             
-        // case MFHI:
+        // case MFHI: mfhi HI, rd
         case 16:
-            r[rd_] = r.HI();
-            PC += 4;
+            code = "mfhi\t $" + std::to_string(rd_);
             break;
             
-        // case MFLO:
+        // case MTHI: mthi HI, rd
+        case 17:
+            code = "mthi\t $" + std::to_string(rd_);
+            break;
+            
+        // case MFLO: mflo LO, rd
         case 18:
-            r[rd_] = r.LO();
-            PC += 4;
+            code = "mflo\t $" + std::to_string(rd_);
             break;
 
-        // case MULT:
+        // case MTLO: mtlo LO, rd
+        case 19:
+            code = "mlfo\t $" + std::to_string(rd_);
+            break;
+            
+        // case MULT: mult rs, rt
         case 24:
+            code =  "mult\t $" + std::to_string(rs_) + ", $" + std::to_string(rt_);
             break;
-
-        // case MULTU:
+            
+        // case MULTU: multu rs, rt
         case 25:
-            multu(&r.HI(), &r.LO(), r[rs_], r[rt_]);
-            PC += 4;
+            code =  "multu\t $" + std::to_string(rs_) + ", $" + std::to_string(rt_);
             break;
             
-        // case DIV:
+        // case DIV: div rs, rt
         case 26:
+            code =  "div\t $" + std::to_string(rs_) + ", $" + std::to_string(rt_);
             break;
             
-        // case DIVU:
+        // case DIVU: divu rs, rt
         case 27:
-            divu(&r.HI(), &r.LO(), r[rs_], r[rt_]);
+            code =  "divu\t $" + std::to_string(rs_) + ", $" + std::to_string(rt_);
             break;
             
-        // case ADD:
+        // case ADD: add rd, rs, rt
         case 32:
-            // std::cout << r[rs_] << ' ' << r[rt_] << std::endl;
-            r[rd_] = r[rs_] + r[rt_];
-            PC += 4;
+            code =  "add\t $" + std::to_string(rd_) + ", $" + std::to_string(rs_) + ", $" + std::to_string(rt_);
             break;
 
-        // case ADDU:
+        // case ADDU: addu rd, rs, rt
         case 33:
-            addu(&r[rd_], r[rs_], r[rt_]);
-            PC += 4;
+            code =  "addu\t $" + std::to_string(rd_) + ", $" + std::to_string(rs_) + ", $" + std::to_string(rt_);
             break;
+            
         // case SUB:
         case 34:
+            code = "sub\t $" + std::to_string(rd_) + ", $" + std::to_string(rs_) + ", $" + std::to_string(rt_);
             break;
             
         // case SUBU:
         case 35:
-            subu(&r[rd_], r[rs_], r[rt_]);
-            PC += 4;
+            code = "subu\t $" + std::to_string(rd_) + ", $" + std::to_string(rs_) + ", $" + std::to_string(rt_);
             break;
 
         // case AND:
         case 36:
-            r[rd_] = r[rs_] & r[rt_];
-            PC += 4;
+            code = "and\t $" + std::to_string(rd_) + ", $" + std::to_string(rs_) + ", $" + std::to_string(rt_);
             break;
 
+        // case XOR:
+        case 38:
+            code = "xor\t $" + std::to_string(rd_) + ", $" + std::to_string(rs_) + ", $" + std::to_string(rt_);
+            
+            break;
+            
         // case SLT:
         case 42:
-            r[rd_] = r[rs_] < r[rt_];
-            PC += 4;
+            code = "slt\t $" + std::to_string(rd_) + ", $" + std::to_string(rs_) + ", $" + std::to_string(rt_);
             break;
             
         // case BLTZ:
         case 64:
-            PC = (r[rs_] < 0 ? PC = imm_: PC + 4);
+            code = "bltz\t $" + std::to_string(rs_) + ", " + std::to_string(imm_);
             break;
 
         // case J:
         case 128:
-            PC = imm_;
+            code = "j\t" + std::to_string(uint32_t(imm_));
             break;
             
         // case JAL:
         case 192:
-            r[31] = PC;
-            PC = imm_;
+            code = "jal\t" + std::to_string(uint32_t(imm_));
             break;
             
         // case BEQ:
         case 256:
-            PC = (r[rs_] == r[rt_] ? PC = imm_: PC + 4);
+            code = "beq\t $" + std::to_string(rs_) + ", $" + std::to_string(rt_) + ", " + std::to_string(uint32_t(imm_));
             break;
 
         // case BNE:
         case 320:
-            PC = (r[rs_] != 0 ? PC = imm_: PC + 4);
+            code = "bne\t $" + std::to_string(rs_) + ", $" + std::to_string(rt_) + ", " + std::to_string(uint32_t(imm_));
             break;
             
         // case BLEZ:
         case 384:
-            PC = (r[rs_] <= 0 ? PC = imm_: PC + 4);
+            code = "blez\t $" + std::to_string(rs_) + ", " + std::to_string(uint32_t(imm_));
             break;
 
         // case ADDI:
         case 512:
-            
+            code = "addi\t $" + std::to_string(rt_) + ", $" + std::to_string(rs_) + ", " + std::to_string(uint32_t(imm_));
+            break;
+
+        // case ADDIU:
+        case 576:
+            code = "addiu\t $" + std::to_string(rt_) + ", $" + std::to_string(rs_) + ", " + std::to_string(uint32_t(imm_));
+            break;
+
+        // case SLTIU:
+        case 704:
+            code = "sltiu\t $" + std::to_string(rt_) + ", $" + std::to_string(rs_) + ", " + std::to_string(uint32_t(imm_));
             break;
         // case ORI:
         case 832:
-            r[rt_] = r[rs_] | imm_;
-            PC += 4;
-            break;
-
-        // case MUL:
-        case 898:
+            code = "ori\t $" + std::to_string(rt_) + ", $" + std::to_string(rs_) + ", " + std::to_string(uint32_t(imm_));
             break;
 
         // case LUI:
         case 960:
-            r[rt_] = (imm_ << 16);
-            PC += 4;
+            code = "lui\t $" + std::to_string(rt_) + ", " + std::to_string(uint32_t(imm_));
             break;
             
+        // case MUL:
+        case 1794:
+            code = "addiu\t $" + std::to_string(rd_) + ", $" + std::to_string(rs_) + ", $" + std::to_string(rt_);
+            break;
+
+        // case LB:
+        case 2048:
+            code = "lb\t $" + std::to_string(rt_) + ", " + std::to_string(uint32_t(imm_)) + "($" + std::to_string(rs_) + ")";
+            break;
+       
         // case LW:
         case 2240:
-            p = (unsigned char *) &(r[rt_]);
-            i = r[rs_] - DS_ADDRESS + imm_;
-            std::cout << std::dec << i << std::endl;
-            *p = memory[i];
-            *(p+1) = memory[i+1];
-            *(p+2) = memory[i+2];
-            *(p+3) = memory[i+3];
-            PC += 4;
+            code = "lw\t $" + std::to_string(rt_) + ", " + std::to_string(uint32_t(imm_)) + "($" + std::to_string(rs_) + ")";
             break;
-            
+
+        // case SB:
+        case 2560:
+            code = "sb\t $" + std::to_string(rt_) + ", " + std::to_string(uint32_t(imm_)) + "($" + std::to_string(rs_) + ")";
+            break;
+        
         // case SW:
         case 2752:
-        {
-            p = (unsigned char *) &(r[rt_]);
-            i = imm_ - DS_ADDRESS;
-            memory[i] = *p;
-            memory[i+1] = *(p+1);
-            memory[i+2] = *(p+2);
-            memory[i+3] = *(p+3);
-            PC += 4;
+            code = "sw\t $" + std::to_string(rt_) + ", " + std::to_string(uint32_t(imm_)) + "($" + std::to_string(rs_) + ")";
             break;
-        }   
-        default:
-            PC += 4;
     }
+    std::cout << code << std::endl;
 }

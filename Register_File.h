@@ -7,54 +7,55 @@
 #include "functions.h"
 #include <cstdint>
 
+class reg_int32
+{
+public:
+    reg_int32(uint32_t x_=0, bool print_signed=false);
+    reg_int32(int x_);
+    reg_int32 & operator=(reg_int32 i);
+    reg_int32 & operator=(int32_t i);
+    bool operator==(reg_int32 i);
+    bool operator==(int i);
+    bool operator!=(reg_int32 i);
+    bool operator!=(int i);
+    bool operator<(reg_int32 i);
+    bool operator<(int i);
+    bool operator<=(reg_int32 i);
+    bool operator<=(int i);
+    bool operator>(reg_int32 i);
+    bool operator>(int i);
+    bool operator>=(reg_int32 i);
+    bool operator>=(int i);
+    // bool operator(reg_int32 i);
+    operator uint32_t()
+    {
+        return x;
+    }
+    uint32_t x;
+    bool print_signed_;
+};
+
+std::ostream & operator<<(std::ostream & cout, reg_int32 i);
+    
 class RegisterFile
 {
 public:
     RegisterFile()
-        : HI_(0), LO_(0)
     {
-        for (int i = 0; i < 32; ++i)
-        {
-            x_[i] = 0;
-        }
+        x_[29] = S_ADDRESS;
     }
-    
-    uint32_t & get_register(const char * s);
-    uint32_t & get_register(const char * s) const;
-    uint32_t operator[](int i) const
-    {
-        return x_[i];
-    }
-    
-    uint32_t & operator[](int i)
-    {
-        return x_[i];
-    }
-    
-    uint32_t HI()const
-    {
-        return HI_;
-    }
-    
-    uint32_t & HI()
-    {
-        return HI_;
-    }
-    
-    uint32_t LO()const
-    {
-        return LO_;
-    }
-
-    uint32_t & LO()
-    {
-        return LO_;
-    }
+    void display_reg() const;
+    reg_int32 operator[](int i) const;
+    reg_int32 & operator[](int i);
+    reg_int32 HI()const;
+    reg_int32 & HI();
+    reg_int32 LO()const;
+    reg_int32 & LO();
     
 private:
-    uint32_t x_[32];
-    uint32_t HI_;
-    uint32_t LO_;
+    reg_int32 x_[32];
+    reg_int32 HI_;
+    reg_int32 LO_;
     
 };
 

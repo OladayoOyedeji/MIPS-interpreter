@@ -13,11 +13,19 @@
 #include <fstream>
 #include <stdexcept>
 #include <cstdint>
+#include <cctype>
+#include <format>
+#include "Arithmetic_operations.h"
 
 const int MAX_TEXTSEGMENT_SIZE = 268435456 - 67108864;
 const int TS_ADDRESS = 67108864;
 const int DS_ADDRESS = 268435456;
+const int S_ADDRESS = 2147483648;
 const int MAX_BUF = 1024;
+
+// class Memory
+// {};
+
 // const int max_int = 18446744073709551616;
 
 static std::map< std::string, int32_t > REGISTER_NOMENCLATURE = {
@@ -27,6 +35,8 @@ static std::map< std::string, int32_t > REGISTER_NOMENCLATURE = {
     {"$t8", 24}, {"$t9", 25}, {"$k0", 26}, {"$k1", 27}, {"$gp", 28}, {"$sp", 29}, {"$fp", 30}, {"$ra", 31}
 };
 
+// 0:operation_, 1:rs_, 2:rt_, 3:rd_, 4:imm_, 5:shamt_
+enum {OPFUNCT, RS, RT, RD, IMM, SHAMT};
 
 //=========================================================================================================
 // pseudoinstruction should map to a list of instructions with constants and variables
@@ -37,21 +47,23 @@ static std::map< std::string, int32_t > REGISTER_NOMENCLATURE = {
 // ble ->[[slt $1, $%s, $%s], [beq $1, $0, %s]]
 // bgt ->[[slt $1, $%s, $%s], [bne $1, $0, %s]]
 //=========================================================================================================
-static std::set<std::string > PSEUDO_INSTRUCTIONS = {"li","la","blt", "ble", "bgt", "bge"};
+static std::set<std::string > PSEUDO_INSTRUCTIONS = {"li","la","blt", "ble", "bgt", "bge", "move", "beqz", "bnez", "seq"};
 
 static std::map< std::string, int32_t > OPERATIONS = {
     {"add", 32}, {"addi", 512}, {"addiu", 576}, {"addu", 33},
     {"and", 36}, {"andi", 768}, {"aui", 960}, 
-    {"beq", 256}, {"blez", 384}, {"bltz", 64}, {"bne", 320},
+    {"beq", 256}, {"bgtz", 448}, {"blez", 384}, {"bltz", 64}, {"bne", 320},
     {"div", 26}, {"divu", 27},
     {"j", 128}, {"jal", 192}, {"jr", 9}, 
-    {"lui", 960}, {"lw", 2240},
-    {"mfhi", 16}, {"mflo", 18}, {"mul", 898}, {"mult", 24}, {"multu", 25},
+    {"lb", 2048}, {"lui", 960}, {"lw", 2240},
+    {"mfhi", 16}, {"mflo", 18}, {"mul", 1794}, {"mult", 24}, {"multu", 25},
     {"ori", (13 << 6)},
-    {"slt", 42}, {"sub", 34}, {"subu", 35}, {"sw", 2752}, {"syscall", 12}
+    {"sb", 2560}, {"slt", 42}, {"sltiu", 704}, {"sub", 34}, {"subu", 35}, {"sw", 2752}, {"syscall", 12},
+    {"xor", 38}
 };
 
-void append_to_path(char * path, int & size, const char * file="");
+void append_to_path(char * path, int & size, const char * file);
+void append_to_path(std::string & path, const char * file="");
 void print_bin(int x, int len);
 int get_numeric(const std::string & s);
 void get_imm_reg(const std::string & s, std::vector< std::string > & token);
