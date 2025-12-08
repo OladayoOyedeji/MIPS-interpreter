@@ -9,8 +9,6 @@ void execute_code(MachineFormat & instruction, RegisterFile & r,
     //std::cout << PC << std::endl;
     unsigned char * p;
     int i;
-    // std::cout << "operation: ";
-    // std::cout << operation() << std::endl;
     switch (instruction.operation())
     {
         // case JR:
@@ -94,6 +92,7 @@ void execute_code(MachineFormat & instruction, RegisterFile & r,
         case 34:
             subu(&r[instruction.rd()].x, r[instruction.rs()].x, r[instruction.rt()].x);
             r[instruction.rd()].print_signed_ = true;
+            PC += 4;
             break;
             
         // case SUBU:
@@ -123,7 +122,6 @@ void execute_code(MachineFormat & instruction, RegisterFile & r,
             
         // case BLTZ:
         case 64:
-            std::cout << "reg: " << r[instruction.rs()] << std::endl;
             PC = (r[instruction.rs()] < 0 ? PC = instruction.imm(): PC + 4);
             break;
 
@@ -216,13 +214,6 @@ void execute_code(MachineFormat & instruction, RegisterFile & r,
         {
             uint32_t address = r[instruction.rs()].x + instruction.imm();
             memory.read_bytes_from_memory(address, r[instruction.rt()].x);
-            // p = (unsigned char *) &(r[rt_]);
-            //i = r[instruction.rs()] - DS_ADDRESS + imm_;
-            
-            // *p = memory[i];
-            // *(p+1) = memory[i+1];
-            // *(p+2) = memory[i+2];
-            // *(p+3) = memory[i+3];
             
             PC += 4;
             break;
@@ -243,17 +234,12 @@ void execute_code(MachineFormat & instruction, RegisterFile & r,
         {
             uint32_t address = r[instruction.rs()].x + instruction.imm();
             memory.write_bytes_to_memory(address, r[instruction.rt()].x);
-            // p = (unsigned char *) &(r[rt_]);
-            // i = r[instruction.rs()] - DS_ADDRESS + imm_;
-            // memory[i] = *p;
-            // memory[i+1] = *(p+1);
-            // memory[i+2] = *(p+2);
-            // memory[i+3] = *(p+3);
-            // if (i + 4 > size) size = i + 4;
+            r[instruction.rt()].print_signed_ = true;
             PC += 4;
             break;
         }
         default:
+            throw std::runtime_error("Invalid Instruction");
             PC += 4;
     }
 }
@@ -261,10 +247,6 @@ void execute_code(MachineFormat & instruction, RegisterFile & r,
 Memory::~Memory()
 {
     clear();
-}
-void Memory::print_instruction(uint32_t address)
-{
-    instruction_[address]->make_new_token();
 }
 void Memory::insert_imm(uint32_t key, uint32_t address)
 {
@@ -351,30 +333,6 @@ void Memory::read_bytes_from_memory(uint32_t address, uint32_t & x, int size)
     }
     else throw std::runtime_error("Invalid Address!!!!");
 }
-
-// void Memory::read_bytes_from_memory(uint32_t & address, std::string & s)
-// {
-//     if (address - DS_ADDRESS >= 0 && DS_ADDRESS - address < MAX_BUF)
-//     {
-//         int i = address - DS_ADDRESS;
-        
-//         for (; i < size; ++i)
-//         {
-//             s[i+1] = data_[i+i];
-//         }
-//     }
-//     else if (S_ADDRESS - address >= 0 && S_ADDRESS - address < MAX_BUF)
-//     {
-//         int i = S_ADDRESS - address;
-        
-//         for (; i < size; ++i)
-//         {
-//             s[i+1] = stack_[i+i];
-//         }
-//     }
-//     else throw std::runtime_error("Invalid Address!!!!");
-// }
-
 void Memory::clear()
 {
     for (auto p: instruction_)
@@ -382,9 +340,18 @@ void Memory::clear()
         delete p.second;
     }
     instruction_.clear();
-        
-    delete [] data_;
-    delete [] stack_;
+    if (data_ != NULL )
+    {
+        delete [] data_;
+        data_ = NULL;
+    }
+    if (stack_ != NULL )
+    {
+        delete [] stack_;
+        stack_ = NULL;
+    }
+    data_size_ = 0;
+    stack_size_ = 0;
 }
 
 void Memory::print_data(uint32_t address) const
@@ -449,3 +416,97 @@ void Memory::execute_instruction(uint32_t & PC, RegisterFile & registers)
     execute_code(*instruction_[PC], registers, PC, *this);
 }
     
+void Memory::write_a_byte_to_memory(uint32_t address, unsigned char c)
+{
+    if (address - DS_ADDRESS >= 0 && address - DS_ADDRESS < MAX_BUF)
+    {
+        int i = address - DS_ADDRESS;
+        if (i + 1 > data_size_) data_size_ = i + 1;
+        data_[i] = c;
+    }
+    else if (S_ADDRESS - address >= 0 && S_ADDRESS - address < MAX_BUF)
+    {
+        int i = S_ADDRESS - address;
+        if (i + 1 > stack_size_) stack_size_ = i + 1;
+        stack_[i] = c;
+            
+    }
+    else throw std::runtime_error("Invalid Address!!!!");
+}
+
+void Memory::read_a_byte_from_memory(uint32_t address, unsigned char & c)
+{
+    if (address - DS_ADDRESS >= 0 && address - DS_ADDRESS < MAX_BUF)
+    {
+        int i = address - DS_ADDRESS;
+        if (i + 1 > data_size_) data_size_ = i + 1;
+        c=data_[i];
+    }
+    else if (S_ADDRESS - address >= 0 && S_ADDRESS - address < MAX_BUF)
+    {
+        int i = S_ADDRESS - address;
+        if (i + 1 > stack_size_) stack_size_ = i + 1;
+        c=stack_[i];
+            
+    }
+    else throw std::runtime_error("Invalid Address!!!!");
+}
+unsigned char Memory::operator[](uint32_t address) const
+{
+    if (address - DS_ADDRESS >= 0 && address - DS_ADDRESS < MAX_BUF)
+    {
+        int i = address - DS_ADDRESS;
+        return data_[i];
+    }
+    else if (S_ADDRESS - address >= 0 && S_ADDRESS - address < MAX_BUF)
+    {
+        int i = S_ADDRESS - address;
+        return stack_[i];
+            
+    }
+    else throw std::runtime_error("Invalid Address!!!!");
+    //return -1;
+}
+
+unsigned char & Memory::operator[](uint32_t address)
+{
+    if (address - DS_ADDRESS >= 0 && address - DS_ADDRESS < MAX_BUF)
+    {
+        int i = address - DS_ADDRESS;
+        if (i + 1 > data_size_) data_size_ = i + 1;
+        return data_[i];
+    }
+    else if (S_ADDRESS - address >= 0 && S_ADDRESS - address < MAX_BUF)
+    {
+        int i = S_ADDRESS - address;
+        if (i + 1 > stack_size_) stack_size_ = i + 1;
+        return stack_[i];
+            
+    }
+    else throw std::runtime_error("Invalid Address!!!!");
+    //return -1;
+}
+
+void Memory::write_instruction_to_a_file(std::string & filepath)
+{
+    std::ofstream f(filepath, std::ios::out);
+
+    f << "\t.text";
+    
+    for (auto p: instruction_)
+    {
+        f << (p.second)->return_code() << '\n';
+    }
+}
+
+void Memory::write_data_to_a_file(std::string & filepath)
+{
+    File f(filepath);
+    f.mywrite(data_, data_size_);
+    f.myclose();
+}
+
+void Memory::write_to_a_file(std::string & filepath)
+{
+    
+}

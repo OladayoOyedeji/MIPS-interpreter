@@ -24,16 +24,12 @@ namespace fs = std::filesystem;
 class Simulation
 {
 public:
-    Simulation()
-        : PC_(TS_ADDRESS), data_(new unsigned char[1024]), data_segment_size_(0)
+    Simulation(const char * filename)
+        : PC_(TS_ADDRESS), filename_(filename)
     {
         char filepath[1024];
         filepath_ = GET_CURRENT_DIR(filepath, sizeof(filepath));
-        //const char  s[1024] = "hello world !!!!\n what is your name?";
-        for (int i = 0; i < 1024; ++i)
-        {
-            data_[i] = 0;
-        }
+        
     }
     void read_file();
     void display_curdir_files();
@@ -55,7 +51,8 @@ public:
     void print_system() const;
     void show_labels() const;
     bool SignalException();
-    void convert_to_machine_format(const std::vector< std::string >& v, int32_t machine_instruction[], uint32_t address);
+    void convert_to_machine_format(const std::vector< std::string >& v, 
+                                   int32_t machine_instruction[], uint32_t address);
     void insert_label(std::string & label, uint32_t address);
     int32_t get_label(const std::string & s, uint32_t address);
     void pseudo_to_instruction(const std::vector< std::string > & token, uint32_t & address);
@@ -65,17 +62,14 @@ public:
                             uint32_t address);
 private:
     Memory memory_;
-    std::map< uint32_t, MachineFormat * > instruction_;
-    unsigned char * data_;
-    uint32_t data_segment_size_;
-    //int mode_;
     RegisterFile registers_;
     
     std::map< std::string, uint32_t > label_;
     std::map< std::string, std::list<uint32_t> > undefined_label_;
-    // std::set< uint32_t > undefined_label_;
     
     std::string filepath_;
+
+    std::string filename_;
     uint32_t PC_;
 };
 

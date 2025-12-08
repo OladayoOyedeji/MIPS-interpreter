@@ -151,34 +151,8 @@ int32_t & MachineFormat::shamt()
 }
 
 
-void MachineFormat::make_new_token() const
+const std::string & MachineFormat::return_code()
 {
-    // int opcode = operation_ >> 6;
-    // int funct = operation_ & ((1 << 6) - 1);
-
-    // for (int i = 1; i < token_.size(); ++i)
-    // {
-    //     try
-    //     {
-    //         token_[i] = "$" + std::to_string(get_register(token_[i]));
-    //     }
-    //     catch (const std::runtime_error & e)
-    //     {
-    //         std::vector< std::string > v;
-    //         try
-    //         {
-    //             get_imm_reg(token_[i], v);
-    //             std::string reg = "$" + std::to_string(get_register(v[1]));
-    //             token_[i] = v[0] + "(" + reg + ")";
-    //         }
-    //         catch (const std::runtime_error & e)
-    //         {
-    //             token_[i] = std::to_string(imm_);
-    //         }
-    //     }
-    // }
-    // return token_;
-
     std::string code;
     switch (operation())
     {
@@ -300,52 +274,55 @@ void MachineFormat::make_new_token() const
 
         // case ADDI:
         case 512:
-            code = "addi\t $" + std::to_string(rt_) + ", $" + std::to_string(rs_) + ", " + std::to_string(uint32_t(imm_));
+            code = "addi\t $" + std::to_string(rt_) + ", $" + std::to_string(rs_) + ", " + std::to_string(imm_);
             break;
 
         // case ADDIU:
         case 576:
-            code = "addiu\t $" + std::to_string(rt_) + ", $" + std::to_string(rs_) + ", " + std::to_string(uint32_t(imm_));
+            code = "addiu\t $" + std::to_string(rt_) + ", $" + std::to_string(rs_) + ", " + std::to_string(imm_);
             break;
 
         // case SLTIU:
         case 704:
-            code = "sltiu\t $" + std::to_string(rt_) + ", $" + std::to_string(rs_) + ", " + std::to_string(uint32_t(imm_));
+            code = "sltiu\t $" + std::to_string(rt_) + ", $" + std::to_string(rs_) + ", " + std::to_string(imm_);
             break;
         // case ORI:
         case 832:
-            code = "ori\t $" + std::to_string(rt_) + ", $" + std::to_string(rs_) + ", " + std::to_string(uint32_t(imm_));
+            code = "ori\t $" + std::to_string(rt_) + ", $" + std::to_string(rs_) + ", " + std::to_string(imm_);
             break;
 
         // case LUI:
         case 960:
-            code = "lui\t $" + std::to_string(rt_) + ", " + std::to_string(uint32_t(imm_));
+            code = "lui\t $" + std::to_string(rt_) + ", " + std::to_string(imm_);
             break;
             
         // case MUL:
         case 1794:
-            code = "addiu\t $" + std::to_string(rd_) + ", $" + std::to_string(rs_) + ", $" + std::to_string(rt_);
+            code = "mul\t $" + std::to_string(rd_) + ", $" + std::to_string(rs_) + ", $" + std::to_string(rt_);
             break;
 
         // case LB:
         case 2048:
-            code = "lb\t $" + std::to_string(rt_) + ", " + std::to_string(uint32_t(imm_)) + "($" + std::to_string(rs_) + ")";
+            code = "lb\t $" + std::to_string(rt_) + ", " + std::to_string(imm_) + "($" + std::to_string(rs_) + ")";
             break;
        
         // case LW:
         case 2240:
-            code = "lw\t $" + std::to_string(rt_) + ", " + std::to_string(uint32_t(imm_)) + "($" + std::to_string(rs_) + ")";
+            code = "lw\t $" + std::to_string(rt_) + ", " + std::to_string(imm_) + "($" + std::to_string(rs_) + ")";
             break;
 
         // case SB:
         case 2560:
-            code = "sb\t $" + std::to_string(rt_) + ", " + std::to_string(uint32_t(imm_)) + "($" + std::to_string(rs_) + ")";
+            code = "sb\t $" + std::to_string(rt_) + ", " + std::to_string(imm_) + "($" + std::to_string(rs_) + ")";
             break;
         
         // case SW:
         case 2752:
-            code = "sw\t $" + std::to_string(rt_) + ", " + std::to_string(uint32_t(imm_)) + "($" + std::to_string(rs_) + ")";
+            code = "sw\t $" + std::to_string(rt_) + ", " + std::to_string(imm_) + "($" + std::to_string(rs_) + ")";
             break;
+        default:
+            code = "instruction doesnt exist: " + std::to_string(operation_);
     }
-    std::cout << code << std::endl;
+    code_ = code;
+    return code_;
 }

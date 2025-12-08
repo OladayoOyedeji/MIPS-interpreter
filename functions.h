@@ -14,6 +14,11 @@
 #include <stdexcept>
 #include <cstdint>
 #include <cctype>
+#include <unistd.h>
+#include <fcntl.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <cerrno>
 #include <format>
 #include "Arithmetic_operations.h"
 
@@ -23,10 +28,52 @@ const int DS_ADDRESS = 268435456;
 const int S_ADDRESS = 2147483648;
 const int MAX_BUF = 1024;
 
-// class Memory
-// {};
+class FileError
+{
+public:
+    FileError()
+        : errno_(errno)
+    {}
+    int errno_;
+};
+
+class OpenError: public FileError
+{};
+class ReadError: public FileError
+{};
+class WriteError: public FileError
+{};
 
 // const int max_int = 18446744073709551616;
+class File
+{
+public:
+    File(const std::string & filename)
+    {
+        fd_ = open(filename.c_str(), O_RDWR | O_CREAT, 0600);
+        if (fd_ < 0) throw OpenError();
+    }
+    File(const char * filename)
+    {
+        fd_ = open(filename, O_RDWR | O_CREAT, 0600);
+        if (fd_ < 0) throw OpenError();
+    }
+    ssize_t myread(unsigned char buff[], ssize_t size);
+    ssize_t mywrite(unsigned char buff[], ssize_t size);
+    off_t mylseek(off_t offset, int whence=SEEK_SET);
+    void myclose()
+    {
+        close(fd_);
+    }
+    int fd_;
+};
+
+// std::ostream & operator<<(std::ostream & cout, FileError & e)
+// {
+//     cout << "Error " << e.errno_ << ": " << stderr(e.errno_);
+//     cout.flush();
+//     return cout;
+// }
 
 static std::map< std::string, int32_t > REGISTER_NOMENCLATURE = {
     {"$r0", 0}, {"$at", 1}, {"$v0", 2},  {"$v1", 3},  {"$a0", 4},  {"$a1", 5},  {"$a2", 6},  {"$a3", 7},

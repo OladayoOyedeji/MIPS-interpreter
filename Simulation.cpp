@@ -178,8 +178,9 @@ void Simulation::display_curdir_files()
             if (files.find(file) != files.end())
             {
                 // append dir to path
-                append_to_path(path, size, file);
-                filepath_ = path;
+                // append_to_path(path, size, file);
+                // filepath_ = path;
+                filename_ = file;
                 not_loaded = false;
             }
             else
@@ -196,27 +197,13 @@ void Simulation::display_curdir_files()
 
 void Simulation::reinitialize_sim()
 {
-    // for (auto p: instruction_)
-    // {
-    //     delete p.second;
-    // }
-    // instruction_.clear();
-    
-    // delete [] data_;
-    // data_ = new unsigned char[1024];
-    // for (int i = 0; i < data_segment_size_; ++i)
-    // {
-    //     data_[i] = 0;
-    // }
-    
-    // data_segment_size_ = 0;
     memory_.clear();
     label_.clear();
     undefined_label_.clear();
     PC_ = TS_ADDRESS;
     registers_ = RegisterFile();
 
-    memory_ = Memory();
+    memory_.init();
 
 }
 
@@ -250,6 +237,17 @@ void Simulation::run_sim(const char * filename)
             }
             // print_system();
             
+            char s[1024];
+            std::cout << "Name of file to write to: ";
+            std::cin.getline(s, MAX_BUF);
+            if (std::cin.fail() || std::cin.bad())
+            {
+                std::cin.clear();
+                std::cin.ignore(std::numeric_limits<std::streamsize>::max(),
+                                '\n');
+            }
+            std::string output_file = filepath_ + '/' + s + ".s";
+            memory_.write_instruction_to_a_file(output_file);
             reinitialize_sim();
         }
         switch (option)
@@ -282,7 +280,9 @@ void Simulation::run_sim(const char * filename)
                 uint32_t starting_address = TS_ADDRESS;
                 process_token(token, starting_address);
                 starting_address += 4;
-                std::ifstream f(filepath_, std::ios::in);
+
+                std::string path = filepath_ + '/' + filename_;
+                std::ifstream f(path, std::ios::in);
                 
                 while (mode != -1)
                 {
@@ -297,6 +297,7 @@ void Simulation::run_sim(const char * filename)
                 }
                 print_system();
                 reinitialize_sim();
+                
                 
         }
         if (option == 'q')
@@ -355,21 +356,17 @@ int Simulation::run_text(uint32_t & address, std::ifstream * f)
         std::string s;
         
         get_input(*f, s, break_, address, f == NULL);
-        // std::cout << break_ << std::endl;
         std::string label = "";
         std::vector< std::string > token;
         
         instruction_lexer(s, token, label);
-        // std::cout << "Label: " << label << ": " << token << std::endl;
-        // print_system();
+        
         if (label == "" && token.size() == 1 && strcmp(token[0], ".data"))
         {
-            // std::cout << "data" << std::endl;
             return 1;
         }
         else if (label == "" && token.size() == 1 && strcmp(token[0], ".text"))
         {
-            // std::cout << "data" << std::endl;
             continue;
         }
         else if (label == "" && token.size() == 1 && strcmp(s, "{print}"))
@@ -386,32 +383,17 @@ int Simulation::run_text(uint32_t & address, std::ifstream * f)
             continue;
         }
         
-        // std::cout << "Label: " << label << token << std::endl;
-        
         try
         {
             uint32_t label_address = address;
-            // std::cout << "address at label: " << label_address << std::endl;
             process_token(token, address);
             insert_label(label, label_address);
             
-            // std::cout << "Undefined Label size: " << undefined_label_.size() << std::endl;
             if (undefined_label_.size() == 0)
             {
-                // run_instruction(address);
-                // for (int i = PC_; i != address; i += 4)
-                // {
-                //     std::cout << "0x" << std::hex << i << std::endl;
-                // }
-                
                 while (PC_ != address)
                 {
-                    
-                    // std::cout << PC_ << " address: " << address << std::endl;
-                    // instruction_[PC_]->execute_code(registers_, PC_, data_, data_segment_size_);
-                    memory_.print_instruction(PC_);
                     memory_.execute_instruction(PC_, registers_);
-                    // print_system();
                 }
             }
         }
@@ -474,6 +456,12 @@ bool Simulation::SignalException()
         }   
         case 10:
             break_ = true;
+            break;
+        case 11:
+            std::cout << char(registers_[4]);
+            break;
+        default:
+            throw std::runtime_error("syscall not defined");
     }
     PC_ += 4;
     return break_;
@@ -736,6 +724,7 @@ void Simulation::convert_to_machine_format(const std::vector< std::string >& v,
             break;
         case 6:
         case 7:
+        case 1:
             if (v.size() != 3) throw std::runtime_error("Invalid Instruction");
             machine_instruction[RS] = get_register(v[1]);
             try{
@@ -766,6 +755,7 @@ void Simulation::convert_to_machine_format(const std::vector< std::string >& v,
         case 43:
         case 41:
         case 40:
+        {
             if (v.size() != 3) throw std::runtime_error("Invalid Instruction");
             machine_instruction[RT] = get_register(v[1]);
             
@@ -775,6 +765,9 @@ void Simulation::convert_to_machine_format(const std::vector< std::string >& v,
             machine_instruction[IMM] = get_numeric(token[0]);
             machine_instruction[RS] = get_register(token[1]);
             break;
+        }
+        default:
+            throw std::runtime_error("Invalid Instruction");
     }
 }
 

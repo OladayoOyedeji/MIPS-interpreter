@@ -29,7 +29,7 @@ public:
     int32_t & rd();
     int32_t shamt() const;
     int32_t & shamt();
-    void make_new_token() const;
+    const std::string & return_code();
 private:
     int32_t operation_;
     int32_t rs_;
@@ -40,9 +40,7 @@ private:
 
     // 0:as it is, 1:upper 16 bit, 2:lower 16 bit
     int imm_mode;
-    std::string label_;
-    std::string instruction_;
-    std::vector< std::string > token_;
+    std::string code_;
 };
 
 

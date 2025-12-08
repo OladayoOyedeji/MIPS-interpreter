@@ -18,13 +18,28 @@ reg_int32 & reg_int32::operator=(reg_int32 i)
 reg_int32 & reg_int32::operator=(int32_t i)
 {
     x = i;
+    print_signed_ = true;
+    return *this;
+}
+
+
+reg_int32 & reg_int32::operator=(uint32_t i)
+{
+    x = i;
+    print_signed_ = false;
     return *this;
 }
 
 bool reg_int32::operator==(reg_int32 i)
 {
-    int64_t x_ = (  print_signed_ ? int32_t(  x) :   x);
-    int64_t y_ = (i.print_signed_ ? int32_t(i.x) : i.x);
+    int64_t x_ = print_signed_
+        ? int64_t(int32_t(x))
+        : int64_t(x);
+
+    int64_t y_ = i.print_signed_
+        ? int64_t(int32_t(i.x))
+        : int64_t(i.x);
+    
     return (x_ == y_);
 }
 
@@ -47,8 +62,14 @@ bool reg_int32::operator!=(int i)
     
 bool reg_int32::operator<(reg_int32 i)
 {
-    int64_t x_ = (  print_signed_ ? int32_t(  x) :   x);
-    int64_t y_ = (i.print_signed_ ? int32_t(i.x) : i.x);
+    int64_t x_ = print_signed_
+        ? int64_t(int32_t(x))
+        : int64_t(x);
+
+    int64_t y_ = i.print_signed_
+        ? int64_t(int32_t(i.x))
+        : int64_t(i.x);
+
     return (x_ < y_);
 }
 
@@ -69,8 +90,14 @@ bool reg_int32::operator<=(int i)
     
 bool reg_int32::operator>(reg_int32 i)
 {
-    int64_t x_ = (  print_signed_ ? int32_t(  x) :   x);
-    int64_t y_ = (i.print_signed_ ? int32_t(i.x) : i.x);
+    int64_t x_ = print_signed_
+        ? int64_t(int32_t(x))
+        : int64_t(x);
+
+    int64_t y_ = i.print_signed_
+        ? int64_t(int32_t(i.x))
+        : int64_t(i.x);
+    // std::cout << x_ << ' ' << y_ << std::endl;
     return (x_ > y_);
 }
 
