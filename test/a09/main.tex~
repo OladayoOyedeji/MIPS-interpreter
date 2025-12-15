@@ -1,0 +1,105 @@
+\input{myassignmentpreamble.tex}
+\input{ciss360}
+\input{yliow}
+
+\renewcommand\TITLE{Assignment 9}
+
+\begin{document}
+\topmatter
+
+
+{\bf Objectives}
+\\
+The purpose of this assignment is to show you that some C/C++ language 
+features can be implemented in terms of simpler ones.
+
+Specifically, we are going to look at a \lq\lq simplified'' C/C++.
+Let's call it Very Simple C/C++.
+In this Very Simple C/C++:
+\begin{enumerate}
+\item Each statement contains at most one arithmetic operator.
+\item There is only one block, the \verb!main()! block. In other words 
+\begin{Verbatim}[frame=single]
+int main()
+{
+    ...
+}
+\end{Verbatim}
+is the only block and within this block, you are not 
+allowed to have \verb!{! or \verb!}!.
+\item The only if statement you see is of the form
+\begin{Verbatim}
+    if ([boolean expression]) goto [label];
+\end{Verbatim} 
+Therefore you also cannot use \verb!else!.
+(Details on the goto statement are given below.)
+\item There are no loop statements such as for-, while-, or do-while loops.
+\end{enumerate}
+
+You will see that although Very Simple C/C++ looks simpler and
+restrictive, in fact it is really as powerful as our usual C/C++.
+In particular, 
+Q1 shows you that complex expressions can be replaced by simpler ones while 
+Q2 and Q3 shows you that structures such as 
+\begin{enumerate}
+\li if statements/blocks,
+\li if-else statements/blocks, and 
+\li for-loop statements/blocks
+\end{enumerate}
+can be implemented in terms of 
+\begin{enumerate}
+\li goto statements and labels and
+\li if statements of the form
+\begin{Verbatim}
+    if ([boolean expression]) goto [label];
+\end{Verbatim}
+\end{enumerate}
+(Check wikipedia for \lq\lq structured programming''.)
+
+The importance of questions Q1--Q3 lies in the fact that
+the language syntax of assembly language in fact allows only 
+\begin{enumerate}
+\item simple arithmetic expressions
+\item branching instructions (more or less if-goto statements)
+\end{enumerate}
+Therefore Q1-Q3 will conceptually prepare you for assembly language.
+
+Another very important thing 
+to realize is that although C/C++ {\it seems} to be
+more powerful than Very Simple C/C++, they are actually equally powerful
+in the sense that any problem solved by C/C++ can also be solved by 
+Very Simple C/C++.
+The only difference is the C/C++ has more structure (blocks, if, if-else,
+loops, etc.) making it easier for the software engineer/developer to 
+develop software systems.
+Therefore if you have a machine that can run Very Simple C/C++ programs,
+then you can run C/C++ programs if you have a way to translate
+C/C++ syntax into Very Simple C/C++ syntax.
+Back in the real world, this is exactly what happens:
+A compiler translates C/C++ programs to assembly language programs.
+This paradigm in Science and Engineering is common:
+One builds systems in {\it layers}.
+
+{\bf Submission instruction:} 
+You must include a completed honor statement. 
+You must staple your honor statement with your work. 
+The honor statement must come first. 
+Your work must be arranged in the order the questions were listed in 
+this document. Untidy work will receive a 0. 
+
+
+\newpage
+\input{../a01q01/question/main.tex} 
+%\input{q01s.tex}
+
+
+\newpage
+\input{../a01q02/question/main.tex} 
+%\input{q02s.tex}
+
+
+\newpage
+\input{../a01q03/question/main.tex} 
+%\input{q03s.tex}
+
+\end{document}

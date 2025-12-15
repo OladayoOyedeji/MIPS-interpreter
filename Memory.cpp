@@ -487,26 +487,60 @@ unsigned char & Memory::operator[](uint32_t address)
     //return -1;
 }
 
-void Memory::write_instruction_to_a_file(std::string & filepath)
+void Memory::write_instruction_to_a_file(const std::string & filepath)
 {
     std::ofstream f(filepath, std::ios::out);
 
-    f << "\t.text";
+    f << "\t.text\n";
     
+    std::cout << "writing to " << filepath << std::endl;
     for (auto p: instruction_)
     {
         f << (p.second)->return_code() << '\n';
     }
+    
 }
 
-void Memory::write_data_to_a_file(std::string & filepath)
+void Memory::write_data_to_a_file(const std::string & filepath)
 {
+    
+    std::cout << "writing to " << filepath << std::endl;
     File f(filepath);
     f.mywrite(data_, data_size_);
     f.myclose();
 }
 
-void Memory::write_to_a_file(std::string & filepath)
+void Memory::write_machine_code_to_a_file(const std::string & filepath)
+{   
+    std::cout << "writing to " << filepath << std::endl;
+    File f(filepath);
+    unsigned char mc[instruction_.size() * 4];
+    int i = 0;
+    for (auto q: instruction_)
+    {
+        int m = (q.second)->convert_to_machine();
+        unsigned char * p = (unsigned char *) &m;
+        mc[i++] = *p;
+        mc[i++] = *(p + 1);
+        mc[i++] = *(p + 2);
+        mc[i++] = *(p + 3);
+        
+    }
+    f.mywrite(mc, i);
+    f.myclose();
+}
+
+void Memory::write_to_a_file(const std::string & filename)
 {
-    
+    char path[1025];
+    GET_CURRENT_DIR(path, sizeof(path));
+    std::string filepath = path + std::string("/save/") + filename;
+    std::string textfilepath = filepath + ".s";
+    write_instruction_to_a_file(textfilepath);
+
+    std::string datafilepath = filepath + "_datafile";
+    write_data_to_a_file(datafilepath);
+
+    std::string machine_code = filepath + "mc";
+    write_machine_code_to_a_file(machine_code);
 }

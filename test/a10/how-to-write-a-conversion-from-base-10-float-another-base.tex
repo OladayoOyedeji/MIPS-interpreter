@@ -1,0 +1,40 @@
+\textsc{How to write a conversion from base 10 float to another base}
+
+\textsc{Problem:}
+Convert 19.1 to base 2 up to 8 places after the binary point.
+\\
+\textsc{Answer:}\vspace{-2mm}
+\begin{answerlong}
+  $19.1 = 19 + 0.1$.
+  
+\begin{longtable}{r|rrr}
+  2 & 19 &   &   \\ \cline{2-4}
+  2 &  9 & r & 1 \\ \cline{2-4}
+  2 &  4 & r & 1 \\ \cline{2-4}
+  2 &  2 & r & 0 \\ \cline{2-4}
+  2 &  1 & r & 0 \\ \cline{2-4}
+    &  0 & r & 1 \\ \cline{2-4}
+\end{longtable}
+Therefore $19 = 10011_{2}$.
+
+\begin{align*}
+  2 \times 0.1 = 0.2 & 0 \\
+  2 \times 0.2 = 0.4 & 0 \\
+  2 \times 0.4 = 0.8 & 0 \\
+  2 \times 0.8 = 1.6 & 1 \\
+  2 \times 0.6 = 1.2 & 1 \\
+  2 \times 0.2 = 0.4 & 0 \\
+  2 \times 0.4 = 0.8 & 0 \\
+  2 \times 0.8 = 1.6 & 1 \\
+  2 \times 0.6 = 1.2 & 1 
+\end{align*}
+
+Therefore $0.1 = 0.000110011_2$ (to 9 places).
+With rounding, $0.1 = 0.00011010_2$ (to 8 places).
+Therefore $19.1 = 10011.00011010_2$.
+
+(Check:
+$10011_2 = 1 + 2 + 16 = 19$
+and
+$0.00011010_2 = 1/16 + 1/32 + 1/128 = 0.1015625$.)
+\end{answerlong}

@@ -1,0 +1,40 @@
+\textsc{How to write multi-column addition}
+
+\textsc{Problem:} Compute $423_{8} + 636_{8}$.
+\\
+\textsc{Answer:}\vspace{-2mm}
+\begin{answerlong}
+\begin{longtable}{ccccc}
+  & 1 &   & 1 &   \\
+  &   & 4 & 2 & 3 \\
++ &   & 6 & 3 & 6 \\ \hline
+  & 1 & 2 & 6 & 1 \\ \hline
+\end{longtable}
+Therefore $423_{8} + 839_{8} = 1261_{8}$.
+\end{answerlong}
+
+Make sure you look at the \LaTeX\ code:
+\begin{console}[fontsize=\footnotesize]
+\begin{longtable}{ccccc}
+  & 1 &   & 1 &   \\
+  &   & 4 & 2 & 3 \\
++ &   & 6 & 3 & 6 \\ \hline
+  & 1 & 2 & 6 & 1 \\ \hline
+\end{longtable}
+Therefore $423_{8} + 839_{8} = 1261_{8}$.
+\end{console}
+The
+\verb!{ccccc}! in the \LaTeX\ says there are 5 columns,
+\verb!&! in the \LaTeX\ are column separators for each row,
+the \verb!\\! is a newline, the \verb!\hline! draws a line through all columns.
+
+
+(Note: Show the carries.)
+
+For subtraction you don't have to show the borrows, because it would be
+too messy:
+\begin{longtable}{ccccc}
+    & 1 & 2 & 3 \\
+$-$ & 1 & 0 & 8 \\ \hline
+    &   & 1 & 5 \\ \hline
+\end{longtable}

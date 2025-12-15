@@ -22,6 +22,18 @@
 #include <format>
 #include "Arithmetic_operations.h"
 
+#include <filesystem>
+#include <stdlib.h>
+
+#ifdef _WIN32
+#include <direct.h> // For _getcwd on Windows
+#define GET_CURRENT_DIR _getcwd
+#else
+#include <unistd.h> // For getcwd on POSIX systems
+#define GET_CURRENT_DIR getcwd
+#endif
+
+
 const int MAX_TEXTSEGMENT_SIZE = 268435456 - 67108864;
 const int TS_ADDRESS = 67108864;
 const int DS_ADDRESS = 268435456;

@@ -1,0 +1,121 @@
+\textsc{How to write multi column float operation}
+
+\textsc{Problem:} Compute $1.1_{2} + 0.111_{2}$.
+\\
+\textsc{Answer:}\vspace{-2mm}
+\begin{answerlong}
+\begin{longtable}{ccccccc}
+  & 1 & 1 &   & 1 &   &   \\
+  &   & 1 & . & 1 &   &   \\
++ &   & 0 & . & 1 & 1 & 1 \\ \hline
+  & 1 & 0 & . & 1 & 1 & 1 \\ \hline
+\end{longtable}
+Therefore $1.1_{2} + 0.111_{2} = 10.111_{2}$.
+\end{answerlong}
+
+\textsc{Problem:} Compute $1.1_{2} \times 0.11_{2}$.
+\\
+\textsc{Answer:}\vspace{-2mm}
+\begin{answerlong}
+  Ignoring the binary point,
+\begin{longtable}{ccccc}
+         &     &   & 1 & 1 \\
+$\times$ &     &   & 1 & 1 \\ \hline
+         &     &   & 1 & 1 \\
+  +      &     & 1 & 1 &   \\ \hline
+         &   1 & 0 & 0 & 1 \\ \hline
+\end{longtable}
+Therefore $1.1_{2} \times 0.11_{2} = 1.001_2$
+
+(Check: $1.1_2 \times 0.11_2 = 1.5 \times (0.5 + 0.25) = 1.5 \times 0.75 = 1.125$ and $1.001_2 = 1 + 1/8 = 1.125$.)
+\end{answerlong}
+
+\newpage
+
+\textsc{Problem:} Compute $10.1011_{2} / 0.11_{2}$ to eight places
+after binary point.
+
+(You don't have to show your work for floating point division because
+the long division is tedious to type.
+But you do need to know how to do long division. 
+If you want to do it, see below. You have to comment out
+\verb!\begin{answerlong}! and \verb!\end{answerlong}!.)
+\\
+\textsc{Answer:}\vspace{-2mm}
+%\begin{answerlong}
+  $10.1011_{2} / 0.11_{2} = 1010.11_{2} / 11_{2}$
+\begin{Verbatim}[fontsize=\tiny]
+       011 10010101010101010 
+   +------------------------
+11 |  1010.11000000000000000
+    - 00
+    ------------------------
+      101
+     - 11
+     -----------------------
+       100
+      - 11
+      ----------------------
+        01 1
+       - 1 1
+       --------------------- 
+         0 01
+        -  00
+        --------------------
+           010 
+          - 00
+          ------------------
+            100
+           - 11
+           -----------------
+             010
+            - 00
+            ----------------
+              100
+             - 11
+             ---------------
+               010
+              - 00
+              -------------- 
+                100
+               - 11
+               ------------- 
+                 010
+                - 00
+                ------------
+                  100
+                 - 11
+                 ----------- 
+                   010
+                  - 00
+                  ---------- 
+                    100
+                   - 11
+                   ---------
+                     010
+                    - 00
+                    --------
+                      100
+                     - 11
+                     -------
+                       010
+                      - 00
+                      ------  
+                        100
+                       - 11
+                      ------
+                         010
+                        - 00
+                        ----
+                          10
+\end{Verbatim}
+
+Therefore $10.1011_{2} / 0.11_{2} = 011.10010101010101010_2$.
+Up to 9 places, $10.1011_{2} / 0.11_{2} = 11.100101010_2$.
+After rounding at the 9th place, $10.1011_{2} / 0.11_{2} = 11.10010101_2$.
+
+(Check:
+$10.1011_{2} / 0.11_{2} = (2 + 1/2 + 1/8 + 1/16) / (1/2 + 1/4) = 3.5833333333333335$
+and
+$11.100101010_2 = 2 + 1 + 1/2 + 1/2^4 + 1/2^6 + 1/2^8 = 3.58203125$.)
+%\end{answerlong}

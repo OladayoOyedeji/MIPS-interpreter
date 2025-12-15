@@ -1,0 +1,50 @@
+#=====================================================================
+# INPUT:
+#       a, b, c, d
+# REGISTER ASSOCIATION:
+#       $s0 = a
+#       $s1 = b
+#       $s2 = c
+#       $s3 = d
+# TEMPORARY REGISTERS USED:
+#       $t0
+# OUTPUT:
+#       $s0 = 2 * a - c - d
+#=====================================================================
+        .text
+        .globl main
+
+main:   li      $v0, 4          # v0 = s0
+        syscall
+        move    $s0, $v0
+
+        li      $v0, 4
+        syscall
+        move    $s1, $v0
+
+        li      $v0, 4
+        syscall
+        move    $s2, $v0
+
+        li      $v0, 4
+        syscall
+        move    $s2, $v0
+
+        li      $v0, 4
+        syscall
+        move    $s3, $v0
+
+        addi    $t0, $s0, -1
+        add     $t0, $t0, $t0
+        sub     $s0, $t0, $s2
+        add     $s0, $s0, $s3
+
+        move    $a0, $s0
+
+        li      $v0, 1
+        syscall
+
+        li      $v0, 10
+        syscall
+        
+

@@ -78,6 +78,31 @@ MachineFormat::MachineFormat(const std::vector< std::string > & v)
     }
 }
 
+int MachineFormat::convert_to_machine()
+{
+    int opcode = operation_ >> 6;
+    int funct = operation_ & ((1 << 6) - 1);
+    int code = opcode;
+    switch(opcode)
+    {
+        case 0:
+            code <<= 5 | rs_;
+            code <<= 5 | rt_;
+            code <<= 5 | rd_;
+            code <<= 5 | shamt_;
+            code <<= 6 | funct;
+            break;
+        case 2:
+        case 3:
+            break;
+        default:
+            code <<= 5 | rs_;
+            code <<= 5 | rt_;
+            code <<= 5 | imm_;
+    }
+    return code;
+}
+
 int32_t MachineFormat::imm() const
 {
     return imm_;

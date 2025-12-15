@@ -15,7 +15,7 @@ public:
         : operation_(v[0]), rs_(v[1]), rt_(v[2]),
           rd_(v[3]), imm_(v[4]), shamt_(v[5]), imm_mode(i)
     {}
-    
+    int convert_to_machine();
     int32_t imm() const;
     int32_t & imm();
     void insert_imm(int32_t imm);

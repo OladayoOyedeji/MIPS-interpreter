@@ -1,0 +1,26 @@
+#=====================================================================
+# INPUT:
+#       a, b, c, d
+# REGISTER ASSOCIATION:
+#       $s0 = a
+#       $s1 = b
+#       $s2 = c
+#       $s3 = d
+# TEMPORARY REGISTERS USED:
+#       $t0, $t1, $t2, $t3, $t5, $t6
+# OUTPUT:
+#       $s0 = (a * 4) -( (b + 2) + (a * 2)) - d + b
+#=====================================================================
+
+        move    $t0, $s0        # t0 = s0       t0 = a
+        add     $t0, $t0, $t0   # t0 = t0 + t0  a * 2
+        add     $t0, $t0, $t0   # t0 = t0 + t0  a * 4
+        add     $t1, $s1, $s3   # t1 = s1 + s3  b + c
+        add     $t2, $s0, $s0   # t2 = s0 + s0  a * 2
+        add     $t1, $t1, $t2   # t1 += t2      (b + c) + (a * 2)
+        sub     $t3, $s4, $s1   # t3 = d - b    d - b
+        sub     $t5, $t0, $t1   # t5 = t0 - t1  (a * 4) -( (b + c) + (a * 2))
+        sub     $t6, $t5, $t3   # t6 = t5 - t3  (a * 4) -( (b + c) + (a * 2)) - d + b
+        move    $s0, $t6        # s0 = t6       a = (a * 4) -( (b + c) + (a * 2)) - d + b
+
+

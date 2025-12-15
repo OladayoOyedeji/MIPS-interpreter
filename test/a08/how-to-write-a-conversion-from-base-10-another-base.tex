@@ -1,0 +1,36 @@
+\textsc{How to write a conversion from base 10 another base}
+
+\textsc{Problem:}
+Convert 19 to base 2.
+\\
+\textsc{Answer:}\vspace{-2mm}
+\begin{answerlong}
+\begin{longtable}{r|rrr}
+  2 & 19 &   &   \\ \cline{2-4}
+  2 &  9 & r & 1 \\ \cline{2-4}
+  2 &  4 & r & 1 \\ \cline{2-4}
+  2 &  2 & r & 0 \\ \cline{2-4}
+  2 &  1 & r & 0 \\ \cline{2-4}
+    &  0 & r & 1 \\ \cline{2-4}
+\end{longtable}
+Therefore $19 = 10011_{2}$.
+\end{answerlong}
+
+Make sure you look at the \LaTeX\ code:
+\begin{console}[fontsize=\footnotesize]
+\begin{longtable}{r|rrr}
+  2 & 19 &   &   \\ \cline{2-4}
+  2 &  9 & r & 1 \\ \cline{2-4}
+  2 &  4 & r & 1 \\ \cline{2-4}
+  2 &  2 & r & 0 \\ \cline{2-4}
+  2 &  1 & r & 0 \\ \cline{2-4}
+    &  0 & r & 1 \\ \cline{2-4}
+\end{longtable}
+Therefore $19 = 10011_{2}$.
+\end{console}
+The \verb!&! is a separator of values in the table.
+The \verb!\cline{2-4}! draws a line from column 2 to column 4.
+
+When you need to do something similar to the computations below,
+just look for the \LaTeX\ code in this file, copy-paste-and-modify.
+

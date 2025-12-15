@@ -6,17 +6,6 @@
 // #include "TextSegment.h"
 #include "Memory.h"
 #include "Register_File.h"
-#include <filesystem>
-#include <stdlib.h>
-
-#ifdef _WIN32
-#include <direct.h> // For _getcwd on Windows
-#define GET_CURRENT_DIR _getcwd
-#else
-#include <unistd.h> // For getcwd on POSIX systems
-#define GET_CURRENT_DIR getcwd
-#endif
-
 namespace fs = std::filesystem;
 
 //bool tokenize(const char * s);

@@ -39,9 +39,10 @@ public:
     unsigned char operator[](uint32_t address) const;
     unsigned char & operator[](uint32_t address);
     void clear();
-    void write_to_a_file(std::string & filepath);
-    void write_instruction_to_a_file(std::string & filepath);
-    void write_data_to_a_file(std::string & filepath);
+    void write_machine_code_to_a_file(const std::string & filepath);
+    void write_to_a_file(const std::string & filepath);
+    void write_instruction_to_a_file(const std::string & filepath);
+    void write_data_to_a_file(const std::string & filepath);
     int32_t data_size() const
     {
         return data_size_;

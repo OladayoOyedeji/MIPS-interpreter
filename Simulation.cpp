@@ -235,19 +235,24 @@ void Simulation::run_sim(const char * filename)
                     goto text;
                 }
             }
-            // print_system();
-            
-            char s[1024];
-            std::cout << "Name of file to write to: ";
-            std::cin.getline(s, MAX_BUF);
-            if (std::cin.fail() || std::cin.bad())
+            std::cout << "Do you want to save to file? [Y/N]: ";
+            std::cin >>option;
+            std::cin.ignore(std::numeric_limits<std::streamsize>::max(),
+                            '\n');
+            if (option == 'Y' || option == 'y')
             {
-                std::cin.clear();
-                std::cin.ignore(std::numeric_limits<std::streamsize>::max(),
-                                '\n');
+                char s[1024];
+                std::cout << "Name of file to write to: ";
+                std::cin.getline(s, MAX_BUF);
+                if (std::cin.fail() || std::cin.bad())
+                {
+                    std::cin.clear();
+                    std::cin.ignore(std::numeric_limits<std::streamsize>::max(),
+                                    '\n');
+                }
+                memory_.write_to_a_file(s);
             }
-            std::string output_file = filepath_ + '/' + s + ".s";
-            memory_.write_instruction_to_a_file(output_file);
+            
             reinitialize_sim();
         }
         switch (option)
@@ -262,7 +267,8 @@ void Simulation::run_sim(const char * filename)
                 // TODO: help instructions
                 std::cout << "Write Mips assembly code on the live terminal or load a file for execution\n"
                           << "\t-Live: Code written on the live intepreter are ran as they are written, \n"
-                          << "\t       write \"{print}\" to print the system whenever you want to view the entire system\n"
+                          << "\t       Unless there is an undefined label the progam then halts for the user to define the label\n"
+                          << "\t       write \"{print}\" to print the system whenever you want to view \n" << "\t the entire system\n"
                           << "\t       User can switch from text segment to data segment by writing .text and .data respectively\n"
                           << "\t-Run File: User can run a mips assembly file,\n"
                           << "\t       write \"<-\" to go to the parent directory,\n"
@@ -295,6 +301,36 @@ void Simulation::run_sim(const char * filename)
                         mode = run_data(&f);
                     }
                 }
+                
+                if (undefined_label_.size() != 0)
+                {
+                    if (mode != -1)
+                    {
+                        std::cout << "Undefined Label: " << std::endl;
+                        for (auto p: undefined_label_)
+                        {
+                            for (auto q: p.second)
+                            {
+                                std::cout << std::setfill(' ') << std::hex << "0x" << q << "| "
+                                          << std::right << std::setw(20)
+                                          << p.first << std::endl;
+                            }
+                        }
+                        reinitialize_sim();
+                    }
+                    continue;
+                }
+                char s[1024];
+                std::cout << "Name of file to write to: ";
+                std::cin.getline(s, MAX_BUF);
+                if (std::cin.fail() || std::cin.bad())
+                {
+                    std::cin.clear();
+                    std::cin.ignore(std::numeric_limits<std::streamsize>::max(),
+                                    '\n');
+                }
+                memory_.write_to_a_file(s);
+            
                 print_system();
                 reinitialize_sim();
                 
@@ -410,7 +446,7 @@ int Simulation::run_text(uint32_t & address, std::ifstream * f)
                 std::cout << "0x" << std::hex << address;
                 std::cout << " > ";
                 std::cout << "Label: " << label << ' ' << token << std::endl;
-                return -1;
+                return -2;
             }
         }
         

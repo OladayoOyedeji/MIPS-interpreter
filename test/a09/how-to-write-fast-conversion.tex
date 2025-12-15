@@ -1,0 +1,32 @@
+\textsc{How to write fast conversions}
+
+\textsc{Problem:} Convert $1011110_{2}$ to base 4.
+\\
+\textsc{Answer:}\vspace{-2mm}
+\begin{answerlong}
+\begin{align*}
+1011110_{2} &= (01_2|01_2|11_2|10_2)_{4} \\
+           &= (1_4|1_4|3_4|2_4)_{4} \\
+           &= 1132_{4} 
+\end{align*}
+Therefore $1011110_{2} = 1132_{4}$.
+\end{answerlong}
+
+In general when doing a sequence of aligned computations, you do this
+\begin{align*}
+a + b + c &= d \times e \cdot f \\
+          &= g_{h} + i \\ 
+          &= j + k^{l} 
+\end{align*}
+Notice that the \verb!=! symbols are aligned.
+Take a look at the \LaTeX\ code:
+\begin{console}[fontsize=\footnotesize]
+\begin{align*}
+a + b + c &= d \times e \cdot f \\
+          &= g_{h} + i \\ 
+          &= j + k^{l} 
+\end{align*}
+\end{console}
+The \verb!&! is the alignment character and the \verb!\\! is newline.  
+The aligned computations must be enclosed in \verb!\begin{align*}! and
+\verb!\end{align*}!.
