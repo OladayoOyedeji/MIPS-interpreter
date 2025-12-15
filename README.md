@@ -17,5 +17,5 @@ A simple **MIPS32 instruction set interpreter** written in C/C++ to explore inst
 
 ## Build & Run
 ```bash
-make
+g++ *.cpp
 ./a.out
