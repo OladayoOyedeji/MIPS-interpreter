@@ -43,6 +43,4 @@ private:
     std::string code_;
 };
 
-
-
 #endif
