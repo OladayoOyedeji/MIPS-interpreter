@@ -97,7 +97,6 @@ bool reg_int32::operator>(reg_int32 i)
     int64_t y_ = i.print_signed_
         ? int64_t(int32_t(i.x))
         : int64_t(i.x);
-    // std::cout << x_ << ' ' << y_ << std::endl;
     return (x_ > y_);
 }
 
