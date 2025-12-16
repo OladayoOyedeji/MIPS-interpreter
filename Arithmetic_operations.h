@@ -15,10 +15,6 @@ void comp(word * ret, word x);                   // 32-bit two's complement
 void subu(word * ret, word x, word y);           // 32-bit unsigned int subtraction
 void multu(word * HI, word * LO, word x, word y); // 32-bit unsigned int mult w
 void divu(word * r,  word * q, word x, word y);  // 32-bit unsigned int div
-
-/* bit add(word * ret, word x, word y);           // 32-bit signed int addition */
-/* void sub(word * ret, word x, word y);           // 32-bit signed int subtraction */
-/* void mult(word * HI, word * LO, word x, word y); // 32-bit signed int mult w */
 void div(word * r,  word * q, word x, word y);  // 32-bit signed int div
 
 #endif
