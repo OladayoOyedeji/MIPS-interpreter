@@ -3,7 +3,6 @@
 
 #include <cmath>
 #include <limits>
-// #include "TextSegment.h"
 #include "Memory.h"
 #include "Register_File.h"
 namespace fs = std::filesystem;
@@ -31,7 +30,6 @@ public:
                   << "[?] Instruction manual\n"
                   << "[l] Load file" << std::endl;
     }
-    // void save_to_file(const char * filename);
     void get_input(std::ifstream &, std::string &, bool & break_, uint32_t address, bool);
     int run_text(uint32_t &, std::ifstream * f=NULL);
     int run_data(std::ifstream * f=NULL);
