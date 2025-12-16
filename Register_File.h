@@ -27,7 +27,6 @@ public:
     bool operator>(int i);
     bool operator>=(reg_int32 i);
     bool operator>=(int i);
-    // bool operator(reg_int32 i);
     operator uint32_t()
     {
         return x;
