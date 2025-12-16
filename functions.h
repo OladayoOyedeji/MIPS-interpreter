@@ -151,11 +151,5 @@ std::ostream & operator<<(std::ostream & cout, const std::vector<T> & v)
 
 int get_register(const std::string & s);
 
-//const char ** addressable_reg[32] = {"r0","at","v0",""}
-
-/* unsigned char * uint_to_hexad(int32_t i); */
-/* unsigned char * uint_to_buff(int32_t i); */
-/* int32_t hexad_to_uint(unsigned char buff[]); */
-/* int32_t buff_to_int(unsigned char buff[]); */
 
 #endif
