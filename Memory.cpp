@@ -250,7 +250,6 @@ Memory::~Memory()
 }
 void Memory::insert_imm(uint32_t key, uint32_t address)
 {
-    // std::cout << std::hex << address << std::endl;
     instruction_[key]->insert_imm(address);
 }
 void Memory::insert_instruction(uint32_t address, int32_t machine_instruction[], int i)
@@ -259,7 +258,6 @@ void Memory::insert_instruction(uint32_t address, int32_t machine_instruction[],
 }
 void Memory::insert_word_to_memory(uint32_t address, uint32_t d)
 {
-    // std::cout << d << std::endl;
     write_bytes_to_memory(address, d);
 }
 
@@ -357,7 +355,6 @@ void Memory::clear()
 void Memory::print_data(uint32_t address) const
 {
     int i = address - DS_ADDRESS;
-    // if (i < 0) throw std::runtime_err();
     //std::cout << registers_[4] << ' ' << i << std::endl;
     while (data_[i] != '\0')
     {
@@ -391,7 +388,7 @@ void Memory::display_data() const
         *(p + 3) = data_[i + 3];
         std::cout << std::right << std::setw(12) << std::dec << value << "|";
 
-        // Value in Hexidecimal form
+        // Value in Hexadecimal form
         std::cout << std::right << std::setw(3) << std::hex << int(data_[i])
                   << std::right << std::setw(3) << std::hex << int(data_[i + 1])
                   << std::right << std::setw(3) << std::hex << int(data_[i + 2])
