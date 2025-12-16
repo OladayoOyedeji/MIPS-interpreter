@@ -86,19 +86,19 @@ int MachineFormat::convert_to_machine()
     switch(opcode)
     {
         case 0:
-            code <<= 5 | rs_;
-            code <<= 5 | rt_;
-            code <<= 5 | rd_;
-            code <<= 5 | shamt_;
-            code <<= 6 | funct;
+            (code <<= 5) | rs_;
+            (code <<= 5) | rt_;
+            (code <<= 5) | rd_;
+            (code <<= 5) | shamt_;
+            (code <<= 6) | funct;
             break;
         case 2:
         case 3:
             break;
         default:
-            code <<= 5 | rs_;
-            code <<= 5 | rt_;
-            code <<= 5 | imm_;
+            (code <<= 5) | rs_;
+            (code <<= 5) | rt_;
+            (code <<= 5) | imm_;
     }
     return code;
 }
