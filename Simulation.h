@@ -7,8 +7,6 @@
 #include "Register_File.h"
 namespace fs = std::filesystem;
 
-//bool tokenize(const char * s);
-
 class Simulation
 {
 public:
