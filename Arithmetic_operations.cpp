@@ -26,9 +26,6 @@ void readbits(word * x)
     for (int i = 0; i < s.size(); ++i)
     {
         *x = (*x << 1) | (*p++ == '0' ? 0 : 1);
-        // int b = (*p++ == '0' ? 0 : 1);
-        // *x |= (b << i);
-        
     }
 }
 
@@ -76,7 +73,6 @@ bit addu(word * ret, word x, word y)
 
 void subu (word * ret, word x, word y)
 {
-    // ret = x + (2^32 - y)
     addu(ret, x, (~y + 1));
 }
 
@@ -103,7 +99,6 @@ void multu(word * HI, word * LO, word x, word y)
 int getAbs(int n)
 {
     int const mask = n >> 31;
-    //std::cout << mask << std::endl;
     return ((n + mask) ^ mask);
 }
 
@@ -150,12 +145,3 @@ void divu(word * r,  word * q, word x, word y)
         
     }
 }
-
-// bit add(word * ret, word x, word y)
-// {}
-// void sub(word * ret, word x, word y)
-// {}
-// void mult(word * HI, word * LO, word x, word y)
-// {}
-// void div(word * r,  word * q, word x, word y)
-// {}
